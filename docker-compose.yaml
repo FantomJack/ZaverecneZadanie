@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  # Nginx webserver service
+  nginx:
+    image: nginx:1.21
+    ports:
+      - 738:80
+      - 739:443
+    volumes:
+      - ./src:/var/www/php
+      - ./.docker/nginx/conf.d:/etc/nginx/conf.d
+      - /etc/ssl/certs/webte_fei_stuba_sk.pem:/etc/nginx/certs/webte_fei_stuba_sk.pem
+      - /etc/ssl/private/webte.fei.stuba.sk.key:/etc/nginx/private/webte.fei.stuba.sk.key
+    depends_on:
+      - php
+
+  # PHP-FPM service
+  php:
+    build: ./.docker/php
+    working_dir: /var/www/php
+    volumes:
+      - ./src:/var/www/php
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  #MySQL service
+  mysql:
+    image: mysql/mysql-server:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_HOST: "%"
+      MYSQL_USER: 'user'
+      MYSQL_PASSWORD: 'userheslo'
+    volumes:
+      - ./.docker/mysql/my.cnf:/etc/mysql/mysql.cnf
+      - ./.database:/docker-entrypoint-initdb.d
+      - mysqldata:/var/lib/mysql
+    healthcheck:
+      test: mysqladmin ping -h 127.0.0.1 -u root --password=$$MYSQL_ROOT_PASSWORD
+      interval: 15s
+      retries: 10
+  
+  # phpMyAdmin Service
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:5
+    ports:
+      - 8087:80
+    environment:
+      PMA_HOST: mysql
+    depends_on:
+      mysql:
+        condition: service_healthy
+# Volumes
+volumes:
+  mysqldata:
