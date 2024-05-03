@@ -1,5 +1,4 @@
 <?php
-
 // Konfiguracia PDO
 require_once '../.config.php';
 header('Content-Type: application/json');
@@ -90,6 +89,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     $response = insertData($conn, $_POST['email'], $_POST['login'], $_POST['password']);
     if ($response) {
+        session_start();
+        $_SESSION["loggedin"] = true;
+        setcookie('loggedin', true, time() + 86400, "/");
         http_response_code(201);
     }else {
         http_response_code(404);

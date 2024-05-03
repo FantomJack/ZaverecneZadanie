@@ -97,9 +97,6 @@
                 // The request was made but no response was received
                 let errmsg = document.getElementById("errmsg");
                 errmsg.textContent = error.response.data.message;
-                // The request was made and the server responded with a status code
-                // console.error('Server responded with status code:', error.response.status);
-                // console.error('Response data:', error.response.data);
             } else if (error.request) {
                 console.error('No response received:', error.request);
             } else {

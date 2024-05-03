@@ -1,13 +1,13 @@
 <?php
 
 session_start();
-$method = $_SERVER['REQUEST_METHOD'];
 
 // Check if the user is already logged in, if yes then redirect him to welcome page
 if(isset($_SESSION["loggedin"]) && $_SESSION["loggedin"] === true){
 //    header("location: index.html");
     exit;
 }
+
 ini_set('display_errors',1);
 ini_set('display_startup_errors',1);
 error_reporting(E_ALL);
@@ -38,7 +38,7 @@ function checkUsername($username) {
 
 // ------- ------- ------- -------
 
-if ($method == "POST") {
+if ($_SERVER['REQUEST_METHOD'] == "POST") {
 
     $errmsg = "";
 

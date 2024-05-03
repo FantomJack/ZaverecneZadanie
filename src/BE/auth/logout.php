@@ -1,7 +1,7 @@
 <?php
 
 session_start();
-
+setcookie('loggedin', false, time() - 3600, '/');
 // Uvolni vsetky session premenne.
 session_unset();
 
@@ -48,7 +48,7 @@ session_destroy();
     <h1>Boli ste uspesne odhlaseni</h1>
 </header>
 <main>
-    <a role="button" href="index.php" class="secondary">Vrait sa na hlavnu stranku</a>
+    <a role="button" href="../../index.php" class="secondary">Vrait sa na hlavnu stranku</a>
 </main>
 </body>
 </html>
