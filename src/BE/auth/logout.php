@@ -2,14 +2,8 @@
 
 session_start();
 setcookie('loggedin', false, time() - 3600, '/');
-// Uvolni vsetky session premenne.
 session_unset();
-
-// Vymaz vsetky data zo session.
 session_destroy();
-
-// Ak nechcem zobrazovat obsah, presmeruj pouzivatela na hlavnu stranku.
-// header('location:index.php');
 
 ?>
 

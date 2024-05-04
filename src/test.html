@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src=".config.js"></script>
+    <title>Document</title>
+</head>
+<body>
+<div id="qrcode"></div>
+<script>
+    let qrCode = new QRCode(document.getElementById("qrcode"), {
+        text: main_page_url, // URL or text to encode
+        width: 128, // Width of the QR code
+        height: 128, // Height of the QR code
+        colorDark: "#000000", // Color of the dark squares
+        colorLight: "#ffffff", // Color of the light squares
+        correctLevel: QRCode.CorrectLevel.H // Error correction level
+    });
+</script>
+</body>
+</html>
