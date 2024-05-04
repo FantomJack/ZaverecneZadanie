@@ -1,23 +1,10 @@
 <?php
 // Konfiguracia PDO
 require_once '../.config.php';
+require_once 'help_functions.php';
 header('Content-Type: application/json');
 
-function checkLength($field, $min, $max) {
-    $string = trim($field);
-    $length = strlen($string);
-    if ($length < $min || $length > $max) {
-        return false;
-    }
-    return true;
-}
-function checkUsername($username) {
-    if (!preg_match('/^[a-zA-Z0-9_]+$/', trim($username))) {
-        return false;
-    }
-    return true;
-}
-function userExist($conn, $login, $email) {
+function userExists($conn, $login, $email) {
     // Funkcia pre kontrolu, ci pouzivatel s "login" alebo "email" existuje.
     $exist = false;
 
@@ -81,7 +68,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     // Kontrola pouzivatela
-    if (userExist($conn, $_POST['login'], $_POST['email']) === true) {
+    if (userExists($conn, $_POST['login'], $_POST['email']) === true) {
         http_response_code(409);
         echo json_encode(['message' => 'Pouzivatel s tymto e-mailom / loginom uz existuje.']);
         return;
@@ -91,7 +78,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($response) {
         session_start();
         $_SESSION["loggedin"] = true;
-        setcookie('loggedin', true, time() + 86400, "/");
+        setcookie('loggedin', true);
         http_response_code(201);
     }else {
         http_response_code(404);
