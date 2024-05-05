@@ -5,8 +5,8 @@ services:
   nginx:
     image: nginx:1.21
     ports:
-      - 768:80
-      - 769:443
+      - 738:80
+      - 739:443
     volumes:
       - ./src:/var/www/php
       - ./.docker/nginx/conf.d:/etc/nginx/conf.d
