@@ -5,8 +5,8 @@ services:
   nginx:
     image: nginx:1.21
     ports:
-      - 738:80
-      - 739:443
+      - 768:80
+      - 769:443
     volumes:
       - ./src:/var/www/php
       - ./.docker/nginx/conf.d:/etc/nginx/conf.d
@@ -39,14 +39,14 @@ services:
       - mysqldata:/var/lib/mysql
     healthcheck:
       test: mysqladmin ping -h 127.0.0.1 -u root --password=$$MYSQL_ROOT_PASSWORD
-      interval: 15s
-      retries: 10
+      interval: 20s
+      retries: 15
   
   # phpMyAdmin Service
   phpmyadmin:
     image: phpmyadmin/phpmyadmin:5
     ports:
-      - 8087:80
+      - 8083:80
     environment:
       PMA_HOST: mysql
     depends_on:
