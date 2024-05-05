@@ -1,0 +1,42 @@
+checkLogin
+save login to session
+
+-- pridanie otázky
+POST subject (kod, nazov)
+    - podarilo / nepodarilo
+
+POST question (subject_id, owner_id, text, typ,
+    datum_uzavretia, {odpovede na otázku})
+    - podarilo / nepodarilo
+    - 5 znakovy kód
+
+
+-- vyplnenie hlasovacej otázky
+GET question answers (code)
+    - id otazky
+    - batch_id
+    - možné odpovede na výber alebo zadanie
+    - typ otázky
+    - text otázky
+    - kod predmetu
+    - nazov predmetu
+
+POST question response (question_id, text)
+    - ziska batch_id z databazy
+    - pridanie responzu do databázy
+
+
+PUT question response (question_id)
+    - updatne ciselko otazky
+
+
+
+-- zobrazenie vysledkov
+GET response stats (code)
+GET response stats (question_id)
+GET response stats (question_id, batch_id)
+    - zobrazenie výsledkov hlasovania
+    - typ zobrazenia
+
+
+TODO prerobiť response PK na id + batch_id
