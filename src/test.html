@@ -7,13 +7,15 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src=".config.js"></script>
+    <link rel="stylesheet" href="styles/main.css">
     <title>Document</title>
 </head>
 <body>
 <div id="qrcode"></div>
 <script>
+    let code = "";
     let qrCode = new QRCode(document.getElementById("qrcode"), {
-        text: main_page_url, // URL or text to encode
+        text: url + code, // URL or text to encode
         width: 128, // Width of the QR code
         height: 128, // Height of the QR code
         colorDark: "#000000", // Color of the dark squares

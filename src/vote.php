@@ -21,6 +21,7 @@ echo "The code is: " . htmlspecialchars($code);
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src=".config.js"></script>
+    <link rel="stylesheet" href="styles/main.css">
     <title>Document</title>
 </head>
 <body>

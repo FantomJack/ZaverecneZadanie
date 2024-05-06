@@ -6,28 +6,9 @@
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Login page</title>
-
-    <style>
-        html {
-            max-width: 70ch;
-            padding: 3em 1em;
-            margin: auto;
-            line-height: 1.75;
-            font-size: 1em;
-        }
-
-        h1,h2,h3,h4,h5,h6 {
-            margin: 3em 0 1em;
-        }
-
-        p,ul,ol {
-            margin-bottom: 2em;
-            color: #1d1d1d;
-            font-family: sans-serif;
-        }
-    </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.3.4/axios.min.js"></script>
+    <link rel="stylesheet" href="styles/main.css">
     <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@1.*/css/pico.min.css">
+    <script src="scripts/auth.js"></script>
 </head>
 <body>
 <!--<header>-->
@@ -77,36 +58,11 @@
     document.getElementById("registerForm").addEventListener("submit", function(event){
         event.preventDefault();
 
+        let log = document.getElementById("login").value;
         let email = document.getElementById("email").value;
-        let login = document.getElementById("login").value;
-        let password = document.getElementById("password").value;
-
-        postData(email, login, password)
-
+        let pass = document.getElementById("password").value;
+        auth_register(url, api, log, email, pass, document.getElementById("errmsg"))
     });
-
-    function postData(email, login, password){
-        axios.post(register_api_url,
-            {login: login, email: email, password: password},
-            {headers: {'Content-Type': 'multipart/form-data'}})
-        .then(function (result) {
-            window.location.href = main_page_url;
-        })
-        .catch(error => {
-            if (error.response) {
-                // The request was made but no response was received
-                let errmsg = document.getElementById("errmsg");
-                errmsg.textContent = error.response.data.message;
-            } else if (error.request) {
-                console.error('No response received:', error.request);
-            } else {
-                console.error('Error during request setup:', error.message);
-            }
-        });
-
-
-    }
-
 </script>
 </main>
 </body>
