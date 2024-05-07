@@ -3,29 +3,30 @@
 class Question
 {
     private $conn;
-    private const CODE = ['a','b','c','d','e','f','g','h','i','j',
+    private $code = ['a','b','c','d','e','f','g','h','i','j',
         'k','l','m','n','o','p','q','r','s','t',
         'u','v','w','x','y','z'];
     public function __construct($conn){
         $this->conn = $conn;
     }
-
-
     private function hash($id_part){
         if($id_part < 10) return $id_part;
-        elseif ($id_part - 10 < 26) return $this->CODE[$id_part - 10];
-        elseif ($id_part - 36 < 26) return strtoupper($this->CODE[$id_part - 36]);
+        elseif ($id_part - 10 < 26) return $this->code[$id_part - 10];
+        elseif ($id_part - 36 < 26) return strtoupper($this->code[$id_part - 36]);
         return null;
     }
     //returns null on failure
     private function generateQRCode($id): ?string
     {
-
         $p5 = $this->hash($id%62);
-        $p4 = $this->hash($id%62^2);
-        $p3 = $this->hash($id%62^3);
-        $p2 = $this->hash($id%62^4);
-        $p1 = $this->hash($id%62^5);
+        $share = intdiv($id,62);
+        $p4 = $this->hash($share%62);
+        $share = intdiv($share,62);
+        $p3 = $this->hash($share%62);
+        $share = intdiv($share,62);
+        $p2 = $this->hash($share%62);
+        $share = intdiv($share,62);
+        $p1 = $this->hash($share%62);
 
         $qrcode = $p1.$p2.$p3.$p4.$p5;
 

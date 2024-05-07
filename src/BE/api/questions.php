@@ -1,7 +1,10 @@
 <?php
 $method = $_SERVER['REQUEST_METHOD'];
 
-echo "Test " . $method;
+require_once "../.config.php";
+require_once "../services/Question.php";
+$questionObj = new Question($conn);
+
 
 // Question.add()
 // if (qrcode == null) http_response_code(404)
