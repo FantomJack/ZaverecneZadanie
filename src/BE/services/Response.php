@@ -8,7 +8,7 @@ class Response
     }
 
     public function get(){
-        $query = "GET * FROM responses";
+        $query = "SELECT * FROM responses";
         $result = mysqli_query($query);
         $responses = [];
         while ($row = mysqli_fetch_assoc($result)){
@@ -16,6 +16,17 @@ class Response
         }
         return $responses;
     }
+
+    public function getBatch($batch_id){
+        $query = "SELECT * FROM responses WHERE batch_id = $batch_id";
+        $result = mysqli_query($this->conn, $query);
+        $responses = [];
+        while ($row = mysqli_fetch_assoc($result)){
+            $responses[] = $row;
+        }
+        return $responses;
+    }
+
     public function getByID($id){
         $query = "SELECT * FROM responses WHERE id = $id";
         $result = mysqli_query($this->conn, $query);
@@ -32,8 +43,8 @@ class Response
         return $id;
     }
     public function add($batch_id, $answer): bool{
-        $id = $this->exists($batch_id, $answer);
-        if($id) return $this->vote($id);
+//        $id = $this->exists($batch_id, $answer);
+//        if($id) return $this->vote($id);
 
         $query = "INSERT INTO responses (batch_id, answer, votes)
                 VALUES ('$batch_id', '$answer', '0')";

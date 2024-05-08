@@ -37,8 +37,10 @@
     <div class="box container">
         <div style="display: grid; place-content: center">
             <h1>Uzastny nadpis</h1>
-            <h3>Sem vlozte vas kod</h3>
+            <label for="codeInput">Sem vlozte vas kod</label>
             <input type="text" name="codeInput" id="codeInput">
+            <p style="color: #dc3545; display: none" id="codeErr"></p>
+            <button id="codeSubmit">Prejsť na otázku</button>
         </div>
     </div>
     <div id="loginFormFrame" class="box container" title="Embedded Website">
@@ -81,6 +83,21 @@
         let pass = document.getElementById("password").value;
         login(url, '/BE/auth/login.php', log, pass, document.getElementById("errmsg"));
     });
+
+    document.getElementById("codeSubmit").addEventListener("click", function () {
+        let code = document.getElementById("codeInput").value;
+        if (correctCode(code))
+            window.location.href = "./" + code;
+        else{
+            let errEl = document.getElementById("codeErr");
+            errEl.textContent = "Nesprávny kód.";
+            errEl.style.display = "block";
+        }
+    })
+
+    function correctCode(code){
+        return false;
+    }
 
 </script>
 </body>

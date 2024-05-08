@@ -9,43 +9,9 @@ class Question
     public function __construct($conn){
         $this->conn = $conn;
     }
-    private function hash($id_part){
-        if($id_part < 10) return $id_part;
-        elseif ($id_part - 10 < 26) return $this->code[$id_part - 10];
-        elseif ($id_part - 36 < 26) return strtoupper($this->code[$id_part - 36]);
-        return null;
-    }
-    //returns null on failure
-    private function generateQRCode($id): ?string
-    {
-        $p5 = $this->hash($id%62);
-        $share = intdiv($id,62);
-        $p4 = $this->hash($share%62);
-        $share = intdiv($share,62);
-        $p3 = $this->hash($share%62);
-        $share = intdiv($share,62);
-        $p2 = $this->hash($share%62);
-        $share = intdiv($share,62);
-        $p1 = $this->hash($share%62);
 
-        $qrcode = $p1.$p2.$p3.$p4.$p5;
 
-        $query = "UPDATE questions SET code = '$qrcode' WHERE id = $id";
-        $result = mysqli_query($this->conn, $query);
-        if ($result){
-            return $qrcode;
-        }else return null;
-    }
-    public function getQRCode($id){
-        $qrcode = null;
-
-        $query = "SELECT * FROM questions WHERE id = $id";
-        $result = mysqli_query($this->conn, $query);
-        if ($result->num_rows == 1)
-            $qrcode = mysqli_fetch_assoc($result)["code"];
-        return $qrcode;
-    }
-
+    // GET ------------------------------------
     public function getByQRCode($QRCode)
     {
         $query = "SELECT * FROM questions WHERE code = $QRCode AND closed_at IS NULL";
@@ -72,7 +38,8 @@ class Question
         }
         return $questions;
     }
-    public function getByID($id){
+    public function getByID($id): bool|array|null
+    {
         $query = "SELECT * FROM questions WHERE id = $id";
         $result = mysqli_query($this->conn, $query);
         $question = mysqli_fetch_assoc($result);
@@ -88,23 +55,91 @@ class Question
         return $questions;
     }
 
-    public function add($subject_id, $owner_id, $text, $type, $end_date): array
+
+    // INSERT -----------------------------------------
+
+    function generateUniqueCode($length = 5) {
+        $characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        $code = '';
+        $max = strlen($characters) - 1;
+
+        for ($i = 0; $i < $length; $i++) {
+            $code .= $characters[mt_rand(0, $max)];
+        }
+
+        return $code;
+    }
+
+    function isCodeUnique($code) {
+        $query = "SELECT COUNT(*) as count FROM questions WHERE code = '$code'";
+        $result = mysqli_query($this->conn, $query);
+        return  mysqli_fetch_assoc($result)['count'] == 0;
+    }
+
+//    private function hash($id_part){
+//        if($id_part < 10) return $id_part;
+//        elseif ($id_part - 10 < 26) return $this->code[$id_part - 10];
+//        elseif ($id_part - 36 < 26) return strtoupper($this->code[$id_part - 36]);
+//        return null;
+//    }
+
+//    private function generateQRCodeByID($id): ?string{
+//
+//        $p5 = $this->hash($id%62);
+//        $share = intdiv($id,62);
+//        $p4 = $this->hash($share%62);
+//        $share = intdiv($share,62);
+//        $p3 = $this->hash($share%62);
+//        $share = intdiv($share,62);
+//        $p2 = $this->hash($share%62);
+//        $share = intdiv($share,62);
+//        $p1 = $this->hash($share%62);
+//
+//        $qrcode = $p1.$p2.$p3.$p4.$p5;
+//
+//        $query = "UPDATE questions SET code = '$qrcode' WHERE id = $id";
+//        $result = mysqli_query($this->conn, $query);
+//        if ($result){
+//            return $qrcode;
+//        }else return null;
+//    }
+
+    private function generateQRCode(): ?string
     {
+        $unique_code = $this->generateUniqueCode();
+        while (!$this->isCodeUnique($unique_code)) {
+            $unique_code = $this->generateUniqueCode();
+        }
+        return $unique_code;
+    }
 
-        $query = "INSERT INTO `receivers` (`subject_id`, `owner_id`, `text`, `type`, `end_date`)
-                VALUES (?,?,?,?,?)";
 
+    public function getQRCode($id){
+        $qrcode = null;
+
+        $query = "SELECT * FROM questions WHERE id = $id";
+        $result = mysqli_query($this->conn, $query);
+        if ($result->num_rows == 1)
+            $qrcode = mysqli_fetch_assoc($result)["code"];
+        return $qrcode;
+    }
+    public function add($subject_id, $owner_id, $text, $type, $closed_at, $is_active): array
+    {
+        $query = "INSERT INTO questions (`subject_id`, `owner_id`, `text`, `type`, `closed_at`, `is_active`, `code`)
+                VALUES (?,?,?,?,?,?,?)";
+        $qrcode = $this->generateQRCode();
         $stmt = mysqli_prepare($this->conn, $query);
-        $stmt->bind_param('iisss',$country_id,$name,$surname,$organisation,$sex,$birth,$death);
+        $stmt->bind_param('iisssss',$subject_id, $owner_id, $text, $type, $closed_at, $is_active, $qrcode);
         $stmt->execute();
         $id = mysqli_insert_id($this->conn);
-        $qrcode = $this->generateQRCode($id);
 
         return array($id,$qrcode);
     }
 
-    public function update($id, $text, $type, $end_date){
-        $query = "UPDATE questions SET text = '$text', type = '$type', $end_date = $end_date WHERE id = $id";
+    // UPDATE -------------------------------------------------
+
+    public function update($id, $text, $type, $closed_at){
+        $query = "UPDATE questions SET text = '$text', type = '$type', closed_at = $closed_at WHERE id = $id";
         $result = mysqli_query($this->conn, $query);
         if ($result)
             return true;
@@ -120,8 +155,6 @@ class Question
         else
             return false;
     }
-
-
     public function close($id)
     {
         $query = "UPDATE questions SET closed_at = NOW() WHERE id = $id";
@@ -132,24 +165,8 @@ class Question
             return false;
     }
 
-    public function isActive($id): bool
-    {
-        $query = "SELECT * FROM questions WHERE id = $id";
-        $result = mysqli_query($this->conn, $query);
-        if ($result->num_rows == 1)
-            if(mysqli_fetch_assoc($result)["closed_at"] != null)
-                return true;
-        return false;
-    }
 
-    public function isQRCodeActive($qrcode): bool
-    {
-        $query = "SELECT * FROM questions WHERE code = '$qrcode' AND closed_at IS NOT NULL";
-        $result = mysqli_query($this->conn, $query);
-        if ($result->num_rows == 1)
-            return true;
-        return false;
-    }
+    // DELETE ------------------------------------------------
 
     public function delete($id): bool
     {
@@ -168,6 +185,27 @@ class Question
             return true;
         else
             return false;
+    }
+
+    // BOOLS -----------------------------------------
+
+    public function isActive($id): bool
+    {
+        $query = "SELECT * FROM questions WHERE id = $id";
+        $result = mysqli_query($this->conn, $query);
+        if ($result->num_rows == 1)
+            if(mysqli_fetch_assoc($result)["closed_at"] != null)
+                return true;
+        return false;
+    }
+
+    public function isQRCodeActive($qrcode): bool
+    {
+        $query = "SELECT * FROM questions WHERE code = '$qrcode' AND closed_at IS NOT NULL";
+        $result = mysqli_query($this->conn, $query);
+        if ($result->num_rows == 1)
+            return true;
+        return false;
     }
 
 
