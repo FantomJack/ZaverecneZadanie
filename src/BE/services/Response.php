@@ -1,10 +1,26 @@
 <?php
 
-class Question
+class Response
 {
     private $conn;
     public function __construct($conn){
         $this->conn = $conn;
+    }
+
+    public function get(){
+        $query = "GET * FROM responses";
+        $result = mysqli_query($query);
+        $responses = [];
+        while ($row = mysqli_fetch_assoc($result)){
+            $responses[] = $row;
+        }
+        return $responses;
+    }
+    public function getByID($id){
+        $query = "SELECT * FROM responses WHERE id = $id";
+        $result = mysqli_query($this->conn, $query);
+        $response = mysqli_fetch_assoc($result);
+        return $response;
     }
     public function exists($batch_id, $answer){
         $query = "SELECT * FROM responses WHERE batch_id = '$batch_id' AND answer = '$answer'";

@@ -63,8 +63,22 @@ class Question
         }
         return $questions;
     }
-    public function get(): bool|array|null
-    {
+    public function getBySubject($subject_id){
+        $query = "SELECT * FROM questions WHERE subject_id = $subject_id";
+        $result = mysqli_query($this->conn, $query);
+        $questions = [];
+        while ($row = mysqli_fetch_assoc($result)){
+            $questions[] = $row;
+        }
+        return $questions;
+    }
+    public function getByID($id){
+        $query = "SELECT * FROM questions WHERE id = $id";
+        $result = mysqli_query($this->conn, $query);
+        $question = mysqli_fetch_assoc($result);
+        return $question;
+    }
+    public function get(): bool|array|null{
         $query = "SELECT * FROM questions";
         $result = mysqli_query($this->conn, $query);
         $questions = [];
@@ -88,6 +102,25 @@ class Question
 
         return array($id,$qrcode);
     }
+
+    public function update($id, $text, $type, $end_date){
+        $query = "UPDATE questions SET text = '$text', type = '$type', $end_date = $end_date WHERE id = $id";
+        $result = mysqli_query($this->conn, $query);
+        if ($result)
+            return true;
+        else
+            return false;
+    }
+
+    public function changeOwner($id, $owner_id){
+        $query = "UPDATE questions SET owner_id = '$owner_id' WHERE id = $id";
+        $result = mysqli_query($this->conn, $query);
+        if ($result)
+            return true;
+        else
+            return false;
+    }
+
 
     public function close($id)
     {
