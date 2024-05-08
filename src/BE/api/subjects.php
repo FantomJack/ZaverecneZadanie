@@ -15,14 +15,14 @@ switch ($method){
     case 'GET':
         break;
 
-//    case 'POST':
-//        break;
-//
-//    case 'PUT':
-//        break;
-//
-//    case 'DELETE':
-//        break;
+    case 'POST':
+        break;
+
+    case 'PUT':
+        break;
+
+    case 'DELETE':
+        break;
 
     default:
         http_response_code(405);

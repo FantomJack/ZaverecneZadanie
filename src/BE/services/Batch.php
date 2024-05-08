@@ -45,4 +45,13 @@ class Batch
         return null;
     }
 
+    public function delete($id){
+        $query = "DELETE FROM response_batches WHERE id = '$id'";
+        $result = mysqli_query($this->conn, $query);
+        if ($result)
+            return true;
+        else
+            return false;
+    }
+
 }

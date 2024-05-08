@@ -58,7 +58,7 @@ class Question
 
     // INSERT -----------------------------------------
 
-    function generateUniqueCode($length = 5) {
+    private function generateUniqueCode($length = 5) {
         $characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
         $code = '';
         $max = strlen($characters) - 1;
@@ -70,7 +70,7 @@ class Question
         return $code;
     }
 
-    function isCodeUnique($code) {
+    private function isCodeUnique($code) {
         $query = "SELECT COUNT(*) as count FROM questions WHERE code = '$code'";
         $result = mysqli_query($this->conn, $query);
         return  mysqli_fetch_assoc($result)['count'] == 0;

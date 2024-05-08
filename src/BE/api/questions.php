@@ -22,6 +22,7 @@ switch ($method) {
             $questions = $questionObj->getByID($_GET["id"]);
         } else {
             $questions = $questionObj->get();
+            break;
         }
 
         if (!empty($questions)) {
@@ -105,7 +106,6 @@ switch ($method) {
             http_response_code(200);
         else
             http_response_code(400);
-        break;
         break;
     default:
     http_response_code(405);
