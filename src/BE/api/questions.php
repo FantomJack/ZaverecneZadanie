@@ -20,9 +20,18 @@ switch ($method) {
             $questions = $questionObj->getBySubject($_GET["subject_id"]);
         } else if (isset($_GET["id"])) {
             $questions = $questionObj->getByID($_GET["id"]);
+//        } else if (isset($_GET["active"])) {
+//            if ($_GET["active"] == "Y") {
+//
+//            }else if ($_GET["active"] == "N"){
+//
+//            }else{
+//                http_response_code(400);
+//                echo json_encode(['message' => 'Invalid is_active value, use Y or N.']);
+//                break;
+//            }
         } else {
             $questions = $questionObj->get();
-            break;
         }
 
         if (!empty($questions)) {
@@ -41,7 +50,7 @@ switch ($method) {
         }
         if ($_POST['type'] != "OPEN" && $_POST['type'] != "CLOSED") {
             http_response_code(400);
-            echo json_encode(['message' => 'Question type unknown.']);
+            echo json_encode(['message' => 'Invalid question type.']);
             break;
         }
 
@@ -49,8 +58,23 @@ switch ($method) {
         if (!isset($_POST['owner_id'])) $_POST['owner_id'] = null;
         if (!isset($_POST['closed_at'])) $_POST['closed_at'] = null;
         if (isset($_POST['is_active'])) {
-            if ($_POST['is_active'] === True) $_POST['is_active'] = 'Y';
-            if ($_POST['is_active'] === False) $_POST['is_active'] = 'N';
+            switch ($_POST['is_active']){
+                case True:
+                    $_POST['is_active'] = 'Y';
+                    break;
+                case False:
+                    $_POST['is_active'] = 'N';
+                    break;
+                case 'N':
+                case 'Y':
+                    break;
+
+                default:
+                    http_response_code(400);
+                    echo json_encode(['message' => 'Invalid is_active value, use Y or N.']);
+                    break;
+
+            }
         }
         if (!isset($_POST['is_active'])) $_POST['is_active'] = 'Y';
 
@@ -70,8 +94,16 @@ switch ($method) {
             echo json_encode(['message' => 'Question id is missing.']);
             break;
         }
-        if (isset($data["close"])) {
-            $response = $questionObj->close($data["id"]);
+        if (!isset($data["close"]) && !isset($data["owner_id"]) &&
+            !isset($data["text"]) && !isset($data["type"]) && !isset($data["closed_at"])){
+            http_response_code(400);
+            echo json_encode(['message' => 'Nothing to update.']);
+            break;
+        }
+
+        if (isset($data["close"]) && strtolower($data["close"]) != "false" || isset($data["closed_at"])) {
+            if (!isset($data["closed_at"])) $data["closed_at"] = "null";
+            $response = $questionObj->close($data["id"],$data["closed_at"]);
             if (!$response)
                 http_response_code(400);
         }
@@ -80,12 +112,22 @@ switch ($method) {
             if (!$response)
                 http_response_code(400);
         }
-        if (isset($data["text"]) || isset($data["type"]) || isset($data["closed_at"])) {
+        if (isset($data["text"]) || isset($data["type"])) {
             if (!isset($data["text"])) $data["text"] = "";
             if (!isset($data["type"])) $data["type"] = "";
-            if (!isset($data["closed_at"])) $data["closed_at"] = null;
 
-            $response = $questionObj->update($data["id"], $data["text"], $data["type"], $data["closed_at"]);
+            switch ($data["type"]){
+                case "OPEN":
+                case "CLOSED":
+                case "":
+                    break;
+                default:
+                    http_response_code(400);
+                    echo json_encode(['message' => 'Invalid type value, use OPEN or CLOSED.']);
+                    return;
+            }
+
+            $response = $questionObj->update($data["id"], $data["text"], $data["type"]);
             if (!$response)
                 http_response_code(400);
         }

@@ -6,9 +6,11 @@ class Subject
         $this->conn = $conn;
     }
 
+    // GET -------------------------------------------------------
 
     public function get(){
-        $query = "GET * FROM subjects";
+        $query = "SELECT * FROM subjects";
+        $result = mysqli_query($this->conn, $query);
         $subjects = [];
         while ($row = mysqli_fetch_assoc($result)){
             $subjects[] = $row;
@@ -23,6 +25,8 @@ class Subject
         return $subject;
     }
 
+    // POST -------------------------------------------------------
+
     public function add($code, $name){
         $query = "INSERT INTO subjects (code, name) VALUES ('$code', '$name')";
         $result = mysqli_query($this->conn, $query);
@@ -33,6 +37,8 @@ class Subject
         }
     }
 
+    // PUT -------------------------------------------------------
+
     public function update($id, $code, $name){
         $query = "UPDATE subjects SET code = '$code', name = '$name' WHERE id = $id";
         $result = mysqli_query($this->conn, $query);
@@ -42,6 +48,8 @@ class Subject
             return false;
         }
     }
+
+    // DELETE -------------------------------------------------------
 
     public function delete($id){
         $query = "DELETE FROM subjects WHERE id = $id";

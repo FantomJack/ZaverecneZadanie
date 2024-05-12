@@ -8,7 +8,9 @@ header('Content-Type: application/json');
 
 require_once "../.config.php";
 require_once "../services/Response.php";
+require_once "../services/Batch.php";
 $responseObj = new Response($conn);
+$batchObj = new Batch($conn);
 
 
 switch ($method) {
@@ -29,11 +31,22 @@ switch ($method) {
         }
         break;
     case 'POST':
-        if (!isset($_POST["batch_id"]) || !isset($_POST["answer"])){
+        if (!isset($_POST["batch_id"]) && !isset($_POST["question_id"])){
             http_response_code(400);
-            echo json_encode(['message' => 'Missing batch id or answer text.']);
+            echo json_encode(['message' => 'Missing batch id or question_id.']);
             break;
         }
+        if (!isset($_POST["answer"])){
+            http_response_code(400);
+            echo json_encode(['message' => 'Missing answer.']);
+            break;
+        }
+
+        if (!isset($_POST["batch_id"]))
+            $_POST["batch_id"] = $batchObj->existsActive($_POST["question_id"]);
+        if ($_POST["batch_id"] == null)
+            $_POST["batch_id"] = $batchObj->add($_POST["question_id"], "New batch");
+
         $response = $responseObj->add($_POST['batch_id'], $_POST['answer']);
         if ($response) {
             http_response_code(201);
@@ -43,6 +56,40 @@ switch ($method) {
         break;
     case 'PUT':
         $data = json_decode(file_get_contents('php://input'), true);
+        if (!isset($data["id"])) {
+            http_response_code(400);
+            echo json_encode(['message' => 'Response id is missing.']);
+            break;
+        }
+        if(!isset($data["action"])){
+            http_response_code(400);
+            echo json_encode(['message' => 'Action is missing.']);
+            break;
+        }
+        switch ($data["action"]){
+            case "vote":
+                $response = $responseObj->vote($data["id"]);
+                break;
+            case "update":
+                if (!isset($data["answer"])) {
+                    http_response_code(400);
+                    echo json_encode(['message' => 'Answer text is missing.']);
+                    break;
+                }
+                $response = $responseObj->update($data["id"], $data["answer"]);
+                break;
+            case "zero":
+            case "zero_out":
+                $response = $responseObj->zero($data["id"]);
+                break;
+            default:
+                http_response_code(400);
+                echo json_encode(['message' => 'Invalid action.']);
+                break;
+        }
+
+        if (!$response)
+            http_response_code(400);
         break;
     case 'DELETE':
         $data = json_decode(file_get_contents('php://input'), true);
@@ -57,7 +104,6 @@ switch ($method) {
             http_response_code(200);
         else
             http_response_code(400);
-        break;
         break;
     default:
     http_response_code(405);

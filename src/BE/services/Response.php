@@ -7,9 +7,11 @@ class Response
         $this->conn = $conn;
     }
 
+    // GET -------------------------------------------------------
+
     public function get(){
         $query = "SELECT * FROM responses";
-        $result = mysqli_query($query);
+        $result = mysqli_query($this->conn,$query);
         $responses = [];
         while ($row = mysqli_fetch_assoc($result)){
             $responses[] = $row;
@@ -45,15 +47,7 @@ class Response
         return $response;
     }
 
-    public function exists($batch_id, $answer){
-        $query = "SELECT * FROM responses WHERE batch_id = '$batch_id' AND answer = '$answer'";
-        $result = $this->conn->query($query);
-
-        $id = null;
-        if ($result->num_rows == 1) $id = mysqli_fetch_array($result)['id'];
-
-        return $id;
-    }
+    // POST -------------------------------------------------------
     public function add($batch_id, $answer): bool{
 //        $id = $this->exists($batch_id, $answer);
 //        if($id) return $this->vote($id);
@@ -68,6 +62,8 @@ class Response
             return false;
         }
     }
+
+    // PUT -------------------------------------------------------
     public function vote($id): bool
     {
         $query = "UPDATE responses
@@ -99,6 +95,8 @@ class Response
             return false;
         }
     }
+
+    // DELETE -------------------------------------------------------
     public function delete($id){
         $query = "DELETE FROM responses WHERE id = '$id';";
         $result = mysqli_query($this->conn, $query);
@@ -112,6 +110,16 @@ class Response
         } else {
             return false;
         }
+    }
+
+    public function exists($batch_id, $answer){
+        $query = "SELECT * FROM responses WHERE batch_id = '$batch_id' AND answer = '$answer'";
+        $result = $this->conn->query($query);
+
+        $id = null;
+        if ($result->num_rows == 1) $id = mysqli_fetch_array($result)['id'];
+
+        return $id;
     }
 
 }

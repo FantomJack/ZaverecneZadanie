@@ -7,9 +7,31 @@ class Batch
         $this->conn = $conn;
     }
 
-    public function add($question_id){
-        $query = "INSERT INTO response_batches (question_id)
-                VALUES ('$question_id')";
+    public function get()
+    {
+        $query = "SELECT * FROM response_batches";
+        $result = mysqli_query($this->conn, $query);
+        $batches = [];
+        while ($row = mysqli_fetch_assoc($result)){
+            $batches[] = $row;
+        }
+        return $batches;
+    }
+    public function getByQuestion($question_id): array
+    {
+        $query = "SELECT * FROM response_batches WHERE question_id = '$question_id'";
+        $result = mysqli_query($this->conn, $query);
+        $batches = [];
+        while ($row = mysqli_fetch_assoc($result)){
+            $batches[] = $row;
+        }
+        return $batches;
+    }
+
+
+    public function add($question_id, $name){
+        $query = "INSERT INTO response_batches (question_id, name)
+                VALUES ('$question_id', '$name')";
 
         $result = mysqli_query($this->conn, $query);
         return mysqli_insert_id($this->conn);
@@ -27,7 +49,7 @@ class Batch
     {
         $id = $this->existsActive($question_id);
         if ($id == null)
-            return false;
+            return true;
 
         $query = "UPDATE response_batches SET backup_date = NOW() WHERE id = '$id'";
         $result = mysqli_query($this->conn, $query);
@@ -36,6 +58,17 @@ class Batch
         else
             return false;
     }
+    public function update($id, $name): bool
+    {
+        $query = "UPDATE response_batches SET name = '$name' WHERE id = '$id';";
+        $result = mysqli_query($this->conn, $query);
+        if ($result){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
     public function existsActive($question_id)
     {
         $query = "SELECT * FROM response_batches WHERE question_id = '$question_id' AND backup_date IS NULL";

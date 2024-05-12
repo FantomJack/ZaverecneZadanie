@@ -15,31 +15,37 @@ header('Content-Type: application/json');
 
 switch ($method){
     case 'GET':
-        if (isset($_GET["question_id"])){
-            $batch = $batchObj->existsActive($_GET["question_id"]);
-            if (!empty($batch)) {
-                echo json_encode($batch);
-            } else {
-                http_response_code(404);
-            }
+        if (!empty($_GET["question_id"])){
+            $batch = $batchObj->getByQuestion($_GET["question_id"]);
         } else
-            http_response_code(400);
-        break;
+            $batch = $batchObj->get();
 
+        if (!empty($batch))
+            echo json_encode($batch);
+        else
+            http_response_code(404);
+        break;
     case 'POST':
-        if (isset($_POST["question_id"])){
-            $response = $batchObj->add($_POST["question_id"]);
-            if ($response)
-                http_response_code(201);
-            else
-                http_response_code(404);
-        } else
+
+        if (!isset($_POST["question_id"]) || !isset($_POST["name"])){
             http_response_code(400);
+            echo json_encode(['message' => 'Missing question id or name.']);
+            break;
+        }
+
+        $response = $batchObj->add($_POST["question_id"], $_POST["name"]);
+        if ($response)
+            http_response_code(201);
+        else
+            http_response_code(404);
+
         break;
     case 'PUT':
         $data = json_decode(file_get_contents('php://input'), true);
 
-        if (isset($data["id"])){
+        if (isset($data["id"]) && isset($data["name"])) {
+            $response = $batchObj->update($data["id"], $data["name"]);
+        }else if (isset($data["id"])){
             $response = $batchObj->backup($data["id"]);
         }else if (isset($data["question_id"])){
             $response = $batchObj->backupQuestion($data["question_id"]);

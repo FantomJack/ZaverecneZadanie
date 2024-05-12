@@ -40,3 +40,49 @@ GET response stats (question_id, batch_id)
 
 
 TODO prerobiť response PK na id + batch_id
+
+------------------------------------------------------------------
+GET question + responses
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -138,8 +138,8 @@ class Question
 
     // UPDATE -------------------------------------------------
 
-    public function update($id, $text, $type, $closed_at){
-        $query = "UPDATE questions SET text = '$text', type = '$type', closed_at = $closed_at WHERE id = $id";
+    public function update($id, $text, $type){
+        $query = "UPDATE questions SET text = '$text', type = '$type' WHERE id = $id";
         $result = mysqli_query($this->conn, $query);
         if ($result)
             return true;
@@ -155,9 +155,12 @@ class Question
         else
             return false;
     }
-    public function close($id)
+    public function close($id, $closed_at)
     {
-        $query = "UPDATE questions SET closed_at = NOW() WHERE id = $id";
+        if ($closed_at == null)
+            $query = "UPDATE questions SET closed_at = NOW() WHERE id = $id";
+        else
+            $query = "UPDATE questions SET closed_at = '$closed_at' WHERE id = $id";
         $result = mysqli_query($this->conn, $query);
         if ($result)
             return true;
