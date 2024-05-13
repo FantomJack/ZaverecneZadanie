@@ -78,7 +78,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($response) {
         session_start();
         $_SESSION["loggedin"] = true;
-        setcookie('loggedin', true);
+        setcookie('loggedin', true, 0, "/");
         http_response_code(201);
     }else {
         http_response_code(404);
