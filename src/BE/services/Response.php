@@ -55,12 +55,8 @@ class Response
         $query = "INSERT INTO responses (batch_id, answer, votes)
                 VALUES ('$batch_id', '$answer', '0')";
 
-        $result = mysqli_query($this->conn, $query);
-        if ($result){
-            return true;
-        }else{
-            return false;
-        }
+        mysqli_query($this->conn, $query);
+        return mysqli_insert_id($this->conn);
     }
 
     // PUT -------------------------------------------------------

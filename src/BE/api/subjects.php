@@ -29,8 +29,9 @@ switch ($method){
             break;
         }
         $response = $subjectObj->add($_POST['code'], $_POST['name']);
-        if ($response) {
+        if (!empty($response)) {
             http_response_code(201);
+            echo json_encode($response);
         } else {
             http_response_code(404);
         }

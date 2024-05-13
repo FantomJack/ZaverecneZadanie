@@ -34,11 +34,12 @@ switch ($method){
         }
 
         $response = $batchObj->add($_POST["question_id"], $_POST["name"]);
-        if ($response)
+        if (!empty($response)) {
             http_response_code(201);
-        else
+            echo json_encode($response);
+        } else {
             http_response_code(404);
-
+        }
         break;
     case 'PUT':
         $data = json_decode(file_get_contents('php://input'), true);

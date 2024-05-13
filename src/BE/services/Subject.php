@@ -29,12 +29,8 @@ class Subject
 
     public function add($code, $name){
         $query = "INSERT INTO subjects (code, name) VALUES ('$code', '$name')";
-        $result = mysqli_query($this->conn, $query);
-        if ($result){
-        return true;
-        }else{
-            return false;
-        }
+        mysqli_query($this->conn, $query);
+        return mysqli_insert_id($this->conn);
     }
 
     // PUT -------------------------------------------------------

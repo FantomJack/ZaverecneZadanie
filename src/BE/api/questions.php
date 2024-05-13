@@ -80,8 +80,9 @@ switch ($method) {
 
         $response = $questionObj->add($_POST['subject_id'], $_POST['owner_id'],
             $_POST['text'], $_POST['type'], $_POST['closed_at'], $_POST['is_active']);
-        if ($response) {
+        if (!empty($response)) {
             http_response_code(201);
+            echo json_encode($response);
         } else {
             http_response_code(404);
         }

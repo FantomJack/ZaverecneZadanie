@@ -48,8 +48,9 @@ switch ($method) {
             $_POST["batch_id"] = $batchObj->add($_POST["question_id"], "New batch");
 
         $response = $responseObj->add($_POST['batch_id'], $_POST['answer']);
-        if ($response) {
+        if (!empty($response)) {
             http_response_code(201);
+            echo json_encode($response);
         } else {
             http_response_code(404);
         }
