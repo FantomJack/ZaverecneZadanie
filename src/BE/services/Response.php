@@ -56,7 +56,7 @@ class Response
                 VALUES ('$batch_id', '$answer', '0')";
 
         mysqli_query($this->conn, $query);
-        return mysqli_insert_id($this->conn);
+        return ['id' => mysqli_insert_id($this->conn)];
     }
 
     // PUT -------------------------------------------------------

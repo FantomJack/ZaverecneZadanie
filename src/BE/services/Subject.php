@@ -30,7 +30,7 @@ class Subject
     public function add($code, $name){
         $query = "INSERT INTO subjects (code, name) VALUES ('$code', '$name')";
         mysqli_query($this->conn, $query);
-        return mysqli_insert_id($this->conn);
+        return ['id' => mysqli_insert_id($this->conn)];
     }
 
     // PUT -------------------------------------------------------

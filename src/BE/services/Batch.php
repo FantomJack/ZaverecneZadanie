@@ -33,8 +33,8 @@ class Batch
         $query = "INSERT INTO response_batches (question_id, name)
                 VALUES ('$question_id', '$name')";
 
-        $result = mysqli_query($this->conn, $query);
-        return mysqli_insert_id($this->conn);
+        mysqli_query($this->conn, $query);
+        return ['id' => mysqli_insert_id($this->conn)];
     }
     public function backup($id)
     {

@@ -133,7 +133,7 @@ class Question
         $stmt->execute();
         $id = mysqli_insert_id($this->conn);
 
-        return array($id,$qrcode);
+        return ['id' => $id, 'qrcode'=> $qrcode];
     }
 
     // UPDATE -------------------------------------------------
