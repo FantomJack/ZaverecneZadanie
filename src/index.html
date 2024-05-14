@@ -41,6 +41,7 @@
             <input type="text" name="codeInput" id="codeInput">
             <p style="color: #dc3545; display: none" id="codeErr"></p>
             <button id="codeSubmit">Prejsť na otázku</button>
+            <button id="createQuestion">Vytvor nové hlasovanie</button>
         </div>
     </div>
     <div id="loginFormFrame" class="box container" title="Embedded Website">
@@ -93,6 +94,10 @@
             errEl.textContent = "Nesprávny kód.";
             errEl.style.display = "block";
         }
+    })
+
+    document.getElementById("createQuestion").addEventListener("click", function () {
+        window.location.href = 'addQuestion.html'
     })
 
     function correctCode(code){

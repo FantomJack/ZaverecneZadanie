@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src=".config.js"></script>
+    <script src="scripts/auth.js"></script>
+    <script src="scripts/cookieHandler.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@1.*/css/pico.min.css">
+    <style>
+        body{
+            width: 100vw;
+            height: 100vh;
+        }
+        .container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+        .box {
+            margin: auto; /* Adjust margin as needed */
+            height:800px;
+            width:600px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="questionFormFrame" class="box container" title="Embedded Website">
+    <form id="questionForm">
+
+        <label for="questionTitle">
+            Znenie otázky:
+            <input type="text" name="questionTitle" value="" id="questionTitle" required>
+        </label>
+        <label for="subject">
+            Predmet:
+            <select name="subject" id="subject" style="margin-bottom:0" required>
+                <option> VSA </option>
+                <option> LA2 </option>
+                <option> WEBTE2 </option>
+                <option> AS </option>
+
+            </select>
+        </label>
+        <div style="display: flex; justify-content: space-around; margin: 0">
+            <p style="font-size: 0.8rem; margin-top: 3px">Chýba ti tvoj predmet ?</p> <p><a href="addSubject.html" style="font-size: 0.8rem">Pridaj ho tu</a></p>
+        </div>
+
+        <button type="submit">Vytvoriť hlasovanie</button>
+    </form>
+
+
+</div>
+
+<script src="scripts/auth.js"></script>
+<script>
+
+    const loggedin = getCookie('loggedin');
+    if (loggedin == true){
+        console.log("Prihlaseny")
+    }
+    else{
+        window.location.href = 'index.html'
+    }
+
+</script>
+</body>
+</html>

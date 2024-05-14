@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hostiteľ: localhost:3306
--- Čas generovania: Út 30.Apr 2024, 09:09
+-- Čas generovania: Po 13.Máj 2024, 20:49
 -- Verzia serveru: 8.0.36-0ubuntu0.22.04.1
 -- Verzia PHP: 8.3.3-1+ubuntu22.04.1+deb.sury.org+1
 
@@ -40,6 +40,17 @@ CREATE TABLE `questions` (
   `closed_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Sťahujem dáta pre tabuľku `questions`
+--
+
+INSERT INTO `questions` (`id`, `owner_id`, `subject_id`, `text`, `code`, `type`, `is_wordmap`, `is_active`, `created_at`, `closed_at`) VALUES
+(2, NULL, NULL, 'dasdas', '4XIWp', 'OPEN', 'N', 'Y', '2024-05-08 21:40:15', NULL),
+(3, NULL, NULL, 'test', 'uqEnC', 'OPEN', 'N', 'Y', '2024-05-11 15:17:54', NULL),
+(6, NULL, NULL, 'testujem navratnost qrcodu', 'DySxu', 'CLOSED', 'N', 'Y', '2024-05-13 12:24:59', NULL),
+(7, NULL, NULL, 'testujem navratnost qrcodu', 'iQFnt', 'CLOSED', 'N', 'Y', '2024-05-13 12:30:53', NULL),
+(8, NULL, NULL, 'testujem navratnost qrcodu', 'Pj7sL', 'CLOSED', 'N', 'Y', '2024-05-13 12:33:33', NULL);
+
 -- --------------------------------------------------------
 
 --
@@ -62,6 +73,7 @@ CREATE TABLE `responses` (
 CREATE TABLE `response_batches` (
   `id` int UNSIGNED NOT NULL,
   `question_id` bigint UNSIGNED NOT NULL,
+  `name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `backup_date` datetime DEFAULT NULL,
   `number` int DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -78,6 +90,13 @@ CREATE TABLE `subjects` (
   `name` varchar(100) COLLATE utf8mb4_general_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Sťahujem dáta pre tabuľku `subjects`
+--
+
+INSERT INTO `subjects` (`id`, `code`, `name`) VALUES
+(2, 'B-MAT2', 'Matematika 2');
+
 -- --------------------------------------------------------
 
 --
@@ -93,6 +112,14 @@ CREATE TABLE `users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
+-- Sťahujem dáta pre tabuľku `users`
+--
+
+INSERT INTO `users` (`id`, `email`, `login`, `password`, `admin_priv`) VALUES
+(18, 'xkaras@stuba.sk', 'xkaras', '$argon2id$v=19$m=65536,t=4,p=1$dUNzTTRXWm4zZ0RPSUYuQQ$ct9X7pcXaNrBpHXACeytj+YgQ2RtiCnZL1DrJClkoR0', 'N'),
+(19, 'belanondrej@gmail.com', 'belano', '$argon2id$v=19$m=65536,t=4,p=1$bndCRDNmNXhuMktQRi5hbQ$ydKVyxBi+77CTPWnI9hbmwVL2at1CWyAuR1Fwik7y0I', 'N');
+
+--
 -- Kľúče pre exportované tabuľky
 --
 
@@ -101,8 +128,10 @@ CREATE TABLE `users` (
 --
 ALTER TABLE `questions`
   ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `code` (`code`),
+  ADD UNIQUE KEY `code_2` (`code`),
   ADD KEY `owner_id` (`owner_id`,`subject_id`),
-  ADD KEY `subject_id` (`subject_id`);
+  ADD KEY `questions_ibfk_2` (`subject_id`);
 
 --
 -- Indexy pre tabuľku `responses`
@@ -122,7 +151,8 @@ ALTER TABLE `response_batches`
 -- Indexy pre tabuľku `subjects`
 --
 ALTER TABLE `subjects`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `code` (`code`);
 
 --
 -- Indexy pre tabuľku `users`
@@ -138,25 +168,31 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT pre tabuľku `questions`
 --
 ALTER TABLE `questions`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT pre tabuľku `responses`
 --
 ALTER TABLE `responses`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT pre tabuľku `response_batches`
 --
 ALTER TABLE `response_batches`
-  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT pre tabuľku `subjects`
+--
+ALTER TABLE `subjects`
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT pre tabuľku `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- Obmedzenie pre exportované tabuľky
@@ -167,7 +203,7 @@ ALTER TABLE `users`
 --
 ALTER TABLE `questions`
   ADD CONSTRAINT `questions_ibfk_1` FOREIGN KEY (`owner_id`) REFERENCES `users` (`id`),
-  ADD CONSTRAINT `questions_ibfk_2` FOREIGN KEY (`subject_id`) REFERENCES `subjects` (`id`);
+  ADD CONSTRAINT `questions_ibfk_2` FOREIGN KEY (`subject_id`) REFERENCES `subjects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Obmedzenie pre tabuľku `responses`

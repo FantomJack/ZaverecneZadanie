@@ -13,6 +13,10 @@ header('Content-Type: application/json');
 
 switch ($method){
     case 'GET':
+        if (isset($_GET["code"])){
+            $subjectObj->getByCode();
+        }
+
         $questions = $subjectObj->get();
 
         if (!empty($questions)) {
