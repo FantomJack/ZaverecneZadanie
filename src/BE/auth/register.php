@@ -33,12 +33,8 @@ function insertData($conn, $email, $login, $password)
     $stmt =  $conn->prepare($sql);
 
     $stmt->bind_param("sss", $login, $email, $hashed_password);
-
-    if ($stmt->execute()) {
-        return true;
-    } else {
-        return false;
-    }
+    $stmt->execute();
+    return mysqli_insert_id($conn);
 }
 
 
@@ -78,7 +74,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($response) {
         session_start();
         $_SESSION["loggedin"] = true;
+        $_SESSION["login"] = $_POST['login'];
+        $_SESSION["email"] = $_POST['email'];
+        $_SESSION["id"] = $response;
         setcookie('loggedin', true, 0, "/");
+        setcookie('login', $_POST['login'], 0, "/");
+        setcookie('email', $_POST['email'], 0, "/");
+        setcookie('id', $response, 0, "/");
         http_response_code(201);
     }else {
         http_response_code(404);

@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
     }
 
     $param_login = trim($_POST['login']);
-    $sql = "SELECT login, email, password FROM users WHERE login = '$param_login';";
+    $sql = "SELECT id, login, email, password FROM users WHERE login = '$param_login';";
     $stmt = $conn->query($sql);
 
     if ($stmt) {
@@ -42,13 +42,17 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
             // Uzivatel existuje, skontroluj heslo.
             $row = $stmt->fetch_assoc();
             $hashed_password = $row["password"];
-
             if (password_verify($_POST['password'], $hashed_password)) {
                 // Uloz data pouzivatela do session.
+                session_start();
                 $_SESSION["loggedin"] = true;
                 $_SESSION["login"] = $row['login'];
                 $_SESSION["email"] = $row['email'];
+                $_SESSION["id"] = $row['id'];
                 setcookie('loggedin', true, 0, "/");
+                setcookie('login', $row['login'], 0, "/");
+                setcookie('email', $row['email'], 0, "/");
+                setcookie('id', $row['id'], 0, "/");
                 http_response_code(200);
                 return;
 
