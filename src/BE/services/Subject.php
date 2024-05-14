@@ -25,6 +25,22 @@ class Subject
         return $subject;
     }
 
+    public function getByCode($code){
+        $code = strtolower($code);
+        $query = "SELECT * FROM subjects WHERE LOWER(code) = '$code'";
+        $result = mysqli_query($this->conn, $query);
+        $subject = mysqli_fetch_assoc($result);
+        return $subject;
+    }
+
+    public function getByName($name){
+        $name = strtolower($name);
+        $query = "SELECT * FROM subjects WHERE LOWER(name) = '$name'";
+        $result = mysqli_query($this->conn, $query);
+        $subject = mysqli_fetch_assoc($result);
+        return $subject;
+    }
+
     // POST -------------------------------------------------------
 
     public function add($code, $name){

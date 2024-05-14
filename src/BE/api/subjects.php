@@ -1,7 +1,7 @@
 <?php
-ini_set('display_errors',1);
-ini_set('display_startup_errors',1);
-error_reporting(E_ALL);
+//ini_set('display_errors',1);
+//ini_set('display_startup_errors',1);
+//error_reporting(E_ALL);
 
 
 require_once "../.config.php";
@@ -13,11 +13,16 @@ header('Content-Type: application/json');
 
 switch ($method){
     case 'GET':
-        if (isset($_GET["code"])){
-            $subjectObj->getByCode();
-        }
+        if (isset($_GET["id"])) {
+            $questions = $subjectObj->getByID($_GET["id"]);
+        }elseif (isset($_GET["code"])){
+            $questions = $subjectObj->getByCode($_GET["code"]);
+        }else if(isset($_GET["name"])){
+            $questions = $subjectObj->getByName($_GET["name"]);
 
-        $questions = $subjectObj->get();
+        }else{
+            $questions = $subjectObj->get();
+        }
 
         if (!empty($questions)) {
             echo json_encode($questions);
