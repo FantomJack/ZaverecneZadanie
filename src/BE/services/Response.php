@@ -48,12 +48,13 @@ class Response
     }
 
     // POST -------------------------------------------------------
-    public function add($batch_id, $answer): bool{
+    public function add($batch_id, $answer){
 //        $id = $this->exists($batch_id, $answer);
 //        if($id) return $this->vote($id);
 
+        $batch_id = $batch_id["id"];
         $query = "INSERT INTO responses (batch_id, answer, votes)
-                VALUES ('$batch_id', '$answer', '0')";
+                VALUES ($batch_id, '$answer', '0')";
 
         mysqli_query($this->conn, $query);
         return ['id' => mysqli_insert_id($this->conn)];
