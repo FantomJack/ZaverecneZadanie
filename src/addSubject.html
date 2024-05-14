@@ -16,6 +16,9 @@
         body{
             width: 100vw;
             height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .container {
             display: flex;
@@ -25,8 +28,9 @@
         }
         .box {
             margin: auto; /* Adjust margin as needed */
-            height:800px;
-            width:600px;
+            height:500px;
+            width:80%;
+            max-width: 1000px;
         }
     </style>
 </head>
@@ -46,6 +50,7 @@
 
         <p id="errMsg" style="display: none"> </p>
         <button type="submit">Pridať predmet</button>
+        <p><a href="addQuestion.html"> Späť na vytváranie hlasovania </a></p>
     </form>
 
 </div>

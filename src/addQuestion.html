@@ -9,12 +9,13 @@
     <script src=".config.js"></script>
     <script src="scripts/auth.js"></script>
     <script src="scripts/cookieHandler.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@1.*/css/pico.min.css">
     <style>
         body{
             width: 100vw;
-            height: 100vh;
         }
         .container {
             display: flex;
@@ -24,35 +25,94 @@
         }
         .box {
             margin: auto; /* Adjust margin as needed */
-            height:800px;
-            width:600px;
+            width:80%;
+            max-width: 1000px;
         }
     </style>
 </head>
 <body>
 
-<div id="questionFormFrame" class="box container" title="Embedded Website">
-    <form id="questionForm">
+<div id="questionFormFrame" class="box container" title="Embedded Website" style="margin-top: 50px">
+    <form id="questionForm" style="width: 90%">
 
         <label for="questionTitle">
             Znenie otázky:
-            <input type="text" name="questionTitle" value="" id="questionTitle" required>
+            <input type="text" name="questionTitle" value="" id="questionTitle" style="width: 100%" required maxlength="99">
         </label>
-        <label for="subject">
-            Predmet:
-            <select name="subject" id="subject" style="margin-bottom:0" required>
-                <option> VSA </option>
-                <option> LA2 </option>
-                <option> WEBTE2 </option>
-                <option> AS </option>
-
+        <label for="subjectName">
+            Názov predmetu:
+            <select name="subjectName" id="subjectName" style="margin-bottom:0" required>
             </select>
         </label>
-        <div style="display: flex; justify-content: space-around; margin: 0">
-            <p style="font-size: 0.8rem; margin-top: 3px">Chýba ti tvoj predmet ?</p> <p><a href="addSubject.html" style="font-size: 0.8rem">Pridaj ho tu</a></p>
+        <div style="display: flex; justify-content: left; margin: 0">
+            <p style="padding-right: 10px">Chýba ti tvoj predmet ?</p>  <p><a href="addSubject.html">Pridaj ho tu</a></p>
+        </div>
+        <div class="grid">
+            <div>
+                <label for="questionType" style="margin-bottom: 0">
+                    Forma odpovedí:
+                    <select name="questionType" id="questionType" style="margin-bottom: 0" required onchange="toggleVisibility()">
+                        <option value='CLOSED'>Výber z možností</option>
+                        <option value='OPEN'> Otvorená odpoveď</option>
+                    </select>
+                </label>
+            </div>
+            <div id="manyAnswersDiv" style="align-items: center; display: flex; justify-content: left; margin: 20px 0 0 30px">
+                <label>
+                    <input name="manyAnswers" type="checkbox" role="switch" />
+                    Výber viacerých možností
+                </label>
+            </div>
+            <div id="wordCloudDiv" style="display: none; align-items: center; justify-content: left; margin: 20px 0 0 30px">
+                <label>
+                    <input name="wordCloud" type="checkbox" role="switch" />
+                    Zobrazenie vo Word-cloude
+                </label>
+            </div>
+        </div>
+        <div id="answersDiv">
+            <div id="answers" style="margin-top: 30px">
+                <label for="answer1">
+                    Možnosť 1:
+                    <input type="text" name="answer1" value="" id="answer1" style="width: 100%" required maxlength="29">
+                </label>
+                <label for="answer2">
+                    Možnosť 2:
+                    <input type="text" name="answer2" value="" id="answer2" style="width: 100%" required maxlength="29">
+                </label>
+            </div>
+            <div style="display: flex">
+                <button type="button" onclick="addAnswer()" style="max-width: 300px; flex: 1 1 100%;">Pridať odpoveď</button>
+                <button type="button" onclick="removeAnswer()" style="max-width: 300px; background-color: darkred; border-color: darkred; flex: 1 1 100%;">Odstrániť odpoveď</button>
+                <style>
+                    @media (min-width: 600px) {
+                        div > button {
+                            flex: 1 1 auto; /* Adjusts button width automatically */
+                            margin-right: 50px; /* Only applies to the first button */
+                        }
+                        div > button:last-child {
+                            margin-right: 0; /* Removes margin from the last button */
+                        }
+                    }
+                    @media (max-width: 599px) {
+                        div {
+                            flex-direction: column; /* Stacks buttons vertically */
+                            align-items: center;
+                        }
+                        div > button:first-child {
+                            margin-right: 0; /* Removes margin from the last button */
+                        }
+                        div > button {
+                            width: 100%; /* Sets each button to 250px wide */
+                            margin: 10px 0 10px 0; /* Adds vertical margin for stacking */
+                            flex: none; /* Disables flex sizing */
+                        }
+                    }
+                </style>
+            </div>
         </div>
 
-        <button type="submit">Vytvoriť hlasovanie</button>
+        <button type="submit" style="margin-top: 30px; margin-bottom: 50px">Vytvoriť hlasovanie</button>
     </form>
 
 
@@ -68,6 +128,77 @@
     else{
         window.location.href = 'index.html'
     }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        populateSubjects();
+    });
+
+    function addAnswer() {
+        const answersDiv = document.getElementById('answers');
+        const totalAnswers = answersDiv.querySelectorAll('label').length;
+        const nextAnswerNumber = totalAnswers + 1; // This will be the number for the new answer
+
+        // Create new label element
+        const newLabel = document.createElement('label');
+        newLabel.setAttribute('for', 'answer' + nextAnswerNumber);
+        newLabel.innerHTML = `Možnosť ${nextAnswerNumber}:`;
+
+        // Create new input element
+        const newInput = document.createElement('input');
+        newInput.type = 'text';
+        newInput.name = 'answer' + nextAnswerNumber;
+        newInput.id = 'answer' + nextAnswerNumber;
+        newInput.style.width = '100%';
+        newInput.required = true;
+        newInput.maxLength = 29
+
+        // Append input to label
+        newLabel.appendChild(newInput);
+
+        // Append new label to the answers div
+        answersDiv.appendChild(newLabel);
+    }
+    function removeAnswer() {
+        const answersDiv = document.getElementById('answers');
+        const totalAnswers = answersDiv.querySelectorAll('label').length;
+        if (totalAnswers > 2) {
+            answersDiv.removeChild(answersDiv.lastChild);
+        }
+    }
+    function toggleVisibility() {
+        var questionType = document.getElementById('questionType').value;
+        var answersDiv = document.getElementById('answersDiv');
+        var manyAnswersDiv = document.getElementById('manyAnswersDiv');
+        var wordCloudDiv = document.getElementById('wordCloudDiv');
+
+        if (questionType === 'OPEN') {
+            answersDiv.style.display = 'none';
+            manyAnswersDiv.style.display = 'none';
+            wordCloudDiv.style.display = 'flex';  // Change to flex to align it similar to others
+        } else {
+            answersDiv.style.display = '';
+            manyAnswersDiv.style.display = 'flex';  // Change to flex to align it similar to others
+            wordCloudDiv.style.display = 'none';
+        }
+    }
+    function populateSubjects() {
+        const url = 'https://node57.webte.fei.stuba.sk:739/BE/api/subjects.php'; // Replace with your actual API URL
+        axios.get(url)
+            .then(function(response) {
+                const subjectSelect = document.getElementById('subjectName');
+                const subjects = response.data; // Assuming the response is an array of subjects
+                subjects.forEach(subject => {
+                    const option = document.createElement('option');
+                    option.value = subject.id; // Assuming each subject has an id
+                    option.textContent = subject.name; // Assuming each subject has a name field
+                    subjectSelect.appendChild(option);
+                });
+            })
+            .catch(function(error) {
+                console.error('Error fetching subjects:', error);
+            });
+    }
+
 
 </script>
 </body>
