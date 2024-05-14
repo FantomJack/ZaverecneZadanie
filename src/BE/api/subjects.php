@@ -27,7 +27,7 @@ switch ($method){
         if (!empty($questions)) {
             echo json_encode($questions);
         } else {
-            http_response_code(404);
+            http_response_code(204);
         }
         break;
 
