@@ -10,6 +10,31 @@ require_once "../.config.php";
 require_once "../services/Question.php";
 $questionObj = new Question($conn);
 
+function checkYN($value)
+{
+    if (isset($_POST[$value])) {
+        switch ($_POST[$value]){
+            case True:
+                $_POST[$value] = 'Y';
+                break;
+            case False:
+                $_POST[$value] = 'N';
+                break;
+            case 'N':
+            case 'Y':
+                break;
+
+            default:
+                http_response_code(400);
+                echo json_encode(['message' => 'Invalid '.$value.' value, use Y or N.']);
+                break;
+
+        }
+    }
+}
+
+
+
 switch ($method) {
     case 'GET':
         if (isset($_GET["qrcode"])) {
@@ -57,29 +82,16 @@ switch ($method) {
         if (!isset($_POST['subject_id'])) $_POST['subject_id'] = null;
         if (!isset($_POST['owner_id'])) $_POST['owner_id'] = null;
         if (!isset($_POST['closed_at'])) $_POST['closed_at'] = null;
-        if (isset($_POST['is_active'])) {
-            switch ($_POST['is_active']){
-                case True:
-                    $_POST['is_active'] = 'Y';
-                    break;
-                case False:
-                    $_POST['is_active'] = 'N';
-                    break;
-                case 'N':
-                case 'Y':
-                    break;
-
-                default:
-                    http_response_code(400);
-                    echo json_encode(['message' => 'Invalid is_active value, use Y or N.']);
-                    break;
-
-            }
-        }
+        checkYN('is_active');
+        checkYN('word_cloud');
+        checkYN('many_answers');
         if (!isset($_POST['is_active'])) $_POST['is_active'] = 'Y';
+        if (!isset($_POST['word_cloud'])) $_POST['word_cloud'] = 'N';
+        if (!isset($_POST['many_answers'])) $_POST['many_answers'] = 'N';
 
         $response = $questionObj->add($_POST['subject_id'], $_POST['owner_id'],
-            $_POST['text'], $_POST['type'], $_POST['closed_at'], $_POST['is_active']);
+            $_POST['text'], $_POST['type'], $_POST['closed_at'], $_POST['is_active'],
+            $_POST['word_cloud'], $_POST['many_answers']);
         if (!empty($response)) {
             http_response_code(201);
             echo json_encode($response);

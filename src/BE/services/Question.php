@@ -123,13 +123,14 @@ class Question
             $qrcode = mysqli_fetch_assoc($result)["code"];
         return $qrcode;
     }
-    public function add($subject_id, $owner_id, $text, $type, $closed_at, $is_active): array
+    public function add($subject_id, $owner_id, $text, $type, $closed_at, $is_active, $is_wordmap, $multichoice): array
     {
-        $query = "INSERT INTO questions (`subject_id`, `owner_id`, `text`, `type`, `closed_at`, `is_active`, `code`)
-                VALUES (?,?,?,?,?,?,?)";
+        $query = "INSERT INTO questions (`subject_id`, `owner_id`, `text`, `type`, `closed_at`, `is_active`, `code`,
+                       `is_wordmap`,`multiple_answers`) VALUES (?,?,?,?,?,?,?,?,?)";
         $qrcode = $this->generateQRCode();
         $stmt = mysqli_prepare($this->conn, $query);
-        $stmt->bind_param('iisssss',$subject_id, $owner_id, $text, $type, $closed_at, $is_active, $qrcode);
+        $stmt->bind_param('iisssssss',$subject_id, $owner_id, $text, $type, $closed_at,
+            $is_active, $qrcode, $is_wordmap, $multichoice);
         $stmt->execute();
         $id = mysqli_insert_id($this->conn);
 

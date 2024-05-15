@@ -45,9 +45,19 @@ switch ($method) {
         if (!isset($_POST["batch_id"]))
             $_POST["batch_id"] = $batchObj->existsActive($_POST["question_id"]);
         if ($_POST["batch_id"] == null)
-            $_POST["batch_id"] = $batchObj->add($_POST["question_id"], "New batch");
+            $_POST["batch_id"] = $batchObj->add($_POST["question_id"], "New batch")["id"];
 
-        $response = $responseObj->add($_POST['batch_id'], $_POST['answer']);
+        if (is_array($_POST['answer'])) {
+            $response = [];
+            foreach ($_POST['answer'] as $answer) {
+                $r = $responseObj->add($_POST['batch_id'], $answer);
+                $response[] = $r;
+            }
+        } else {
+            $response = $responseObj->add($_POST['batch_id'], $_POST['answer']);
+
+        }
+
         if (!empty($response)) {
             http_response_code(201);
             echo json_encode($response);
@@ -69,7 +79,14 @@ switch ($method) {
         }
         switch ($data["action"]){
             case "vote":
-                $response = $responseObj->vote($data["id"]);
+                if (is_array($data["id"])) {
+                    foreach ($data["id"] as $id) {
+                        $response = $responseObj->vote($id);
+                    }
+                } else {
+                    $response = $responseObj->vote($data["id"]);
+
+                }
                 break;
             case "update":
                 if (!isset($data["answer"])) {
@@ -81,7 +98,13 @@ switch ($method) {
                 break;
             case "zero":
             case "zero_out":
-                $response = $responseObj->zero($data["id"]);
+                if (is_array($data["id"])) {
+                    foreach ($data["id"] as $id) {
+                        $response = $responseObj->zero($id);
+                    }
+                } else {
+                    $response = $responseObj->zero($data["id"]);
+                }
                 break;
             default:
                 http_response_code(400);

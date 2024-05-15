@@ -49,10 +49,11 @@ class Response
 
     // POST -------------------------------------------------------
     public function add($batch_id, $answer){
-//        $id = $this->exists($batch_id, $answer);
-//        if($id) return $this->vote($id);
-
-        $batch_id = $batch_id["id"];
+        $id = $this->exists($batch_id, $answer);
+        if($id){
+            $this->vote($id);
+            return ['id' => $id];
+        }
         $query = "INSERT INTO responses (batch_id, answer, votes)
                 VALUES ($batch_id, '$answer', '0')";
 
