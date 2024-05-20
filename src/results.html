@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>Results Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f4;
+            flex-direction: column;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        #resultsContainer {
+            width: 80%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            padding: 20px;
+        }
+        #batchId {
+            margin-bottom: 10px;
+        }
+        #wordmap {
+            margin-bottom: 10px;
+        }
+        #answersList {
+            margin-bottom: 20px;
+            list-style-type: none;
+            padding: 0;
+            width: 80%;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            background-color: #f9f9f9;
+            padding: 10px;
+        }
+        #wordCloud {
+            width: 80%;
+            height: 400px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            overflow: hidden;
+            position: relative;
+        }
+        .word {
+            position: absolute;
+            white-space: nowrap;
+            transition: transform 0.5s;
+        }
+        .returnButton {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 16px;
+            border-radius: 4px;
+        }
+        .returnButton:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+<h1>Results</h1>
+
+<div id="resultsContainer">
+    <div id="batchId"></div>
+    <div id="wordmap"></div>
+    <ul id="answersList"></ul>
+    <div id="wordCloud"></div>
+    <a href="index.html" class="returnButton">Vratit sa spat</a>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.24.0/axios.min.js"></script>
+<script>
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+
+    const batchId = urlParams.get('batchId');
+    const wordmap = urlParams.get('wordmap');
+
+    const batchIdDiv = document.getElementById('batchId');
+    const wordmapDiv = document.getElementById('wordmap');
+
+    batchIdDiv.textContent = `Batch ID: ${batchId}`;
+    wordmapDiv.textContent = `Wordmap: ${wordmap}`;
+
+    axios.get(`https://node31.webte.fei.stuba.sk/zaverecnezadanie/src/BE/api/responses.php?batch_id=${batchId}`)
+        .then(response => {
+            const responses = response.data;
+            console.log('Responses:', responses);
+
+            if (wordmap === 'Y') {
+                displayWordCloud(responses);
+            } else {
+                displayAnswersList(responses);
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching responses:', error);
+        });
+
+    function displayAnswersList(responses) {
+        const answersList = document.getElementById('answersList');
+        answersList.innerHTML = '';
+
+        responses.forEach(response => {
+            const listItem = document.createElement('li');
+            listItem.textContent = response.answer.replace(/"/g, '');
+            answersList.appendChild(listItem);
+        });
+    }
+
+    function displayWordCloud(responses) {
+        const wordCloud = document.getElementById('wordCloud');
+        wordCloud.innerHTML = '';
+        const width = wordCloud.offsetWidth;
+        const height = wordCloud.offsetHeight;
+        const centerX = width / 2;
+        const centerY = height / 2;
+
+        const words = responses.map(response => ({
+            text: response.answer.replace(/"/g, ''),
+            size: parseInt(response.votes) * 10,
+        }));
+
+        words.forEach(placeWord);
+
+        function placeWord(word) {
+            const wordElement = document.createElement('span');
+            wordElement.className = 'word';
+            wordElement.textContent = word.text;
+            wordElement.style.fontSize = `${word.size}px`;
+            wordElement.style.color = `hsl(${Math.random() * 360}, 100%, 50%)`;
+
+            wordCloud.appendChild(wordElement);
+
+            const wordWidth = wordElement.offsetWidth;
+            const wordHeight = wordElement.offsetHeight;
+
+            let placed = false;
+            let angle = 0;
+            let radius = 0;
+
+            while (!placed) {
+                const x = centerX + radius * Math.cos(angle) - wordWidth / 2;
+                const y = centerY + radius * Math.sin(angle) - wordHeight / 2;
+
+                if (x >= 0 && y >= 0 && x + wordWidth <= width && y + wordHeight <= height && !isOverlap(wordElement, x, y)) {
+                    wordElement.style.left = `${x}px`;
+                    wordElement.style.top = `${y}px`;
+                    placed = true;
+                }
+
+                angle += 0.1;
+                radius += 0.1;
+            }
+        }
+
+        function isOverlap(wordElement, x, y) {
+            const elements = document.getElementsByClassName('word');
+            for (let element of elements) {
+                if (element !== wordElement) {
+                    const rect1 = { left: x, top: y, right: x + wordElement.offsetWidth, bottom: y + wordElement.offsetHeight };
+                    const rect2 = { left: parseFloat(element.style.left), top: parseFloat(element.style.top), right: parseFloat(element.style.left) + element.offsetWidth, bottom: parseFloat(element.style.top) + element.offsetHeight };
+                    if (!(rect1.left > rect2.right || rect1.right < rect2.left || rect1.top > rect2.bottom || rect1.bottom < rect2.top)) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+    }
+</script>
+</body>
+</html>
