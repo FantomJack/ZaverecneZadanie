@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Vaše otázky</title>
+    <script src=".config.js"></script>
+    <script src="scripts/auth.js"></script>
+    <script src="scripts/cookieHandler.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@1.*/css/pico.min.css">
+    <style>
+        body {
+            width: 100vw;
+        }
+        .container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+        .box {
+            margin: auto;
+            width: 80%;
+            max-width: 1000px;
+        }
+        .question {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            position: relative;
+        }
+        .delete-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            width: 20%;
+        }
+        .delete-button:hover {
+            background-color: #c0392b;
+        }
+    </style>
+</head>
+<body>
+<div class="box container">
+    <div id="questionsContainer" style="width: 100%">
+        <h1>Zoznam vašich otázok</h1>
+        <div>
+            <label for="subjectFilter">Filtrovať podľa predmetu:</label>
+            <select id="subjectFilter" onchange="applyFilters()">
+                <option value="">Všetky predmety</option>
+            </select>
+
+            <label for="dateFilter">Filtrovať podľa dátumu vytvorenia:</label>
+            <input type="date" id="dateFilter" onchange="applyFilters()">
+        </div>
+        <div id="questionsList"></div>
+    </div>
+</div>
+
+<script>
+    const loggedin = getCookie('loggedin');
+    if (!loggedin) {
+        window.location.href = 'index.html';
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const userId = getCookie('id');
+        if (userId) {
+            fetchQuestions(userId);
+        } else {
+            console.error('User ID not found in cookies.');
+        }
+    });
+
+
+    let allQuestions = [];
+    let subjectsMap = {};
+
+    async function fetchQuestions(userId) {
+        const url = `https://node31.webte.fei.stuba.sk/zaverecnezadanie/src/BE/api/questions.php?owner_id=${userId}`;
+        try {
+            const response = await axios.get(url);
+            allQuestions = response.data;
+            await fetchSubjectsAndDisplayQuestions(allQuestions);
+        } catch (error) {
+            console.error('Error fetching questions:', error);
+        }
+    }
+
+    async function fetchSubjectsAndDisplayQuestions(questions) {
+        for (const question of questions) {
+            const subjectId = question.subject_id;
+            if (!subjectsMap[subjectId]) {
+                const subject = await fetchSubjectById(subjectId);
+                subjectsMap[subjectId] = subject.name;
+                addSubjectOption(subjectId, subject.name);
+            }
+        }
+
+        displayQuestions(questions);
+    }
+
+    async function fetchSubjectById(subjectId) {
+        const url = `https://node31.webte.fei.stuba.sk/zaverecnezadanie/src/BE/api/subjects.php?id=${subjectId}`;
+        try {
+            const response = await axios.get(url);
+            return response.data;
+        } catch (error) {
+            console.error(`Error fetching subject with ID ${subjectId}:`, error);
+        }
+    }
+
+    function addSubjectOption(subjectId, subjectName) {
+        const subjectFilter = document.getElementById('subjectFilter');
+        const option = document.createElement('option');
+        option.value = subjectId;
+        option.textContent = subjectName;
+        subjectFilter.appendChild(option);
+    }
+
+    function displayQuestions(questions) {
+        const questionsList = document.getElementById('questionsList');
+        questionsList.innerHTML = '';
+
+        if (questions.length === 0) {
+            questionsList.innerHTML = '<p>No questions found.</p>';
+            return;
+        }
+
+        questions.forEach(question => {
+            const questionDiv = document.createElement('div');
+            questionDiv.className = 'question';
+            questionDiv.id = `question-${question.id}`;
+
+            const questionTitle = document.createElement('h3');
+            questionTitle.textContent = question.text;
+
+            const subjectName = subjectsMap[question.subject_id] || 'Unknown Subject';
+            const questionSubject = document.createElement('p');
+            questionSubject.textContent = `Predmet: ${subjectName}`;
+
+            const creationDate = document.createElement('p');
+            creationDate.textContent = `Dátum vytvorenia: ${question.created_at}`;
+
+            const deleteButton = document.createElement('button');
+            deleteButton.className = 'delete-button';
+            deleteButton.textContent = 'Vymazať';
+            deleteButton.onclick = function() {
+                deleteQuestion(question.id);
+            };
+
+            questionDiv.appendChild(questionTitle);
+            questionDiv.appendChild(questionSubject);
+            questionDiv.appendChild(creationDate);
+            questionDiv.appendChild(deleteButton);
+
+            questionsList.appendChild(questionDiv);
+        });
+    }
+
+    async function deleteQuestion(questionId) {
+        const url = 'https://node31.webte.fei.stuba.sk/zaverecnezadanie/src/BE/api/questions.php';
+        try {
+            const response = await axios.delete(url, { data: { id: questionId } });
+            console.log('Question deleted');
+            location.reload();
+        } catch (error) {
+            console.error(`Error deleting question with ID ${questionId}:`, error);
+        }
+    }
+
+    function applyFilters() {
+        const subjectFilter = document.getElementById('subjectFilter').value;
+        const dateFilter = document.getElementById('dateFilter').value;
+
+        const filteredQuestions = allQuestions.filter(question => {
+            const matchesSubject = !subjectFilter || question.subject_id === subjectFilter;
+            const matchesDate = !dateFilter || question.created_at.startsWith(dateFilter);
+            return matchesSubject && matchesDate;
+        });
+
+        displayQuestions(filteredQuestions);
+    }
+</script>
+</body>
+</html>

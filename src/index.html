@@ -42,6 +42,7 @@
             <p style="color: #dc3545; display: none" id="codeErr"></p>
             <button id="codeSubmit">Prejsť na otázku</button>
             <button id="createQuestion">Vytvor nové hlasovanie</button>
+            <button id="showQuestions">Zobraziť moje otázky</button>
         </div>
     </div>
     <div id="loginFormFrame" class="box container" title="Embedded Website">
@@ -108,6 +109,10 @@
 
     document.getElementById("createQuestion").addEventListener("click", function () {
         window.location.href = 'addQuestion.html'
+    })
+
+    document.getElementById("showQuestions").addEventListener("click", function () {
+        window.location.href = 'showQuestions.html'
     })
 
     function correctCode(code) {
