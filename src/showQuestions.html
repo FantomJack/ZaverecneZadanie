@@ -9,6 +9,7 @@
     <script src=".config.js"></script>
     <script src="scripts/auth.js"></script>
     <script src="scripts/cookieHandler.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
             crossorigin="anonymous"></script>
@@ -57,6 +58,16 @@
             width: 20%;
         }
 
+        .code-button {
+            margin: 10px;
+            background-color: #918989;
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            width: 20%;
+        }
+
         .view-batches-button {
             background-color: #3498db;
             color: white;
@@ -79,6 +90,85 @@
         .view-batches-button:hover {
             background-color: #2980b9;
         }
+
+        .qrCodeDivBlock {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgb(0,0,0); /* Fallback color */
+            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            justify-content: center;
+            align-items: center;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: auto;
+            height: auto;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            position: relative;
+        }
+        .close {
+            color: #aaa;
+            font-size: 38px;
+            font-weight: bold;
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            cursor: pointer;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        @media (max-width: 599px) {
+            .button-container {
+                display: grid;
+                justify-content: stretch;
+            }
+            .delete-button {
+                margin: 10px;
+                background-color: #e74c3c;
+                color: white;
+                border: none;
+                padding: 10px;
+                cursor: pointer;
+                width: 94%;
+            }
+
+            .code-button {
+                margin: 10px;
+                background-color: #918989;
+                color: white;
+                border: none;
+                padding: 10px;
+                cursor: pointer;
+                width: 94%;
+            }
+
+            .view-batches-button {
+                background-color: #3498db;
+                color: white;
+                border: none;
+                padding: 10px;
+                cursor: pointer;
+                width: 94%;
+                margin: 10px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -98,6 +188,12 @@
 
         <div id="questionsList"></div>
     </div>
+</div>
+<div id="qrCodeDivBlock" class="qrCodeDivBlock">
+    <div class="modal-content">
+        <div id="qrCodeDiv" style="margin: auto"></div>
+    </div>
+    <span class="close" id="closeSpan">&times;</span>
 </div>
 
 <script>
@@ -189,7 +285,7 @@
             creationDate.textContent = `Dátum vytvorenia: ${question.created_at}`;
 
             const questionCode = document.createElement('p');
-            questionCode.textContent = `QR kód na otázku: ${question.code}`;
+            questionCode.textContent = `Kód na otázku: ${question.code}`;
 
             const questionTypeBlock = document.createElement('p');
             let questionType = question.type
@@ -216,6 +312,13 @@
                 deleteQuestion(question.id);
             };
 
+            const codeButton = document.createElement('button');
+            codeButton.className = 'code-button';
+            codeButton.textContent = 'Zobraz QR kód';
+            codeButton.onclick = function () {
+                showQR(question.code);
+            };
+
             const viewBatchesButton = document.createElement('button');
             viewBatchesButton.className = 'view-batches-button';
             viewBatchesButton.textContent = 'Zobraziť hlasovania';
@@ -223,6 +326,7 @@
                 viewBatches(question.id);
             };
 
+            buttonContainer.appendChild(codeButton);
             buttonContainer.appendChild(deleteButton);
             buttonContainer.appendChild(viewBatchesButton);
 
@@ -241,6 +345,30 @@
             location.reload();
         } catch (error) {
             console.error(`Error deleting question with ID ${questionId}:`, error);
+        }
+    }
+
+    function showQR(code){
+        let qrCode = new QRCode(document.getElementById("qrCodeDiv"), {
+            text: url + '/' + code, // URL or text to encode
+            width: 300, // Width of the QR code
+            height: 300, // Height of the QR code
+            colorDark: "#000000", // Color of the dark squares
+            colorLight: "#ffffff", // Color of the light squares
+            correctLevel: QRCode.CorrectLevel.H // Error correction level
+        });
+        document.getElementById("qrCodeDivBlock").style.display = "flex";
+    }
+
+    document.getElementById("closeSpan").onclick = function () {
+        document.getElementById("qrCodeDiv").innerHTML = "";
+        document.getElementById("qrCodeDivBlock").style.display = "none";
+    }
+
+    window.onclick = function(event) {
+        if (event.target === document.getElementById("qrCodeDivBlock")) {
+            document.getElementById("qrCodeDivBlock").style.display = "none";
+            document.getElementById("qrCodeDiv").innerHTML = "";
         }
     }
 
