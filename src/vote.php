@@ -9,7 +9,7 @@ $uri_parts = explode('/', $request_uri);
 $code = end($uri_parts);
 
 // Do something with the code, like display it or process it
-echo "The code is: " . htmlspecialchars($code);
+//echo "The code is: " . htmlspecialchars($code);
 ?>
 
 <!doctype html>
@@ -22,7 +22,9 @@ echo "The code is: " . htmlspecialchars($code);
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.24.0/axios.min.js"></script>
     <script src=".config.js"></script>
     <link rel="stylesheet" href="styles/main.css">
-    <title>Document</title>
+    <script src="scripts/cookieHandler.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@1.*/css/pico.min.css">
+    <title>Hlasovanie</title>
     <style>
         .hidden {
             display: none;
@@ -30,29 +32,26 @@ echo "The code is: " . htmlspecialchars($code);
     </style>
 </head>
 <body>
+<h2>Hlasovanie za otázku</h2>
 <div id="questionContainer">
     <div id="questionText"></div>
-    <div id="questionId"></div>
     <div id="textFieldContainer" class="hidden">
-        <label for="responseText">Enter your response:</label><br>
+        <label for="responseText">Vaša odpoveď:</label><br>
         <input type="text" id="responseText" name="responseText"><br>
     </div>
     <div id="responseContainer" class="hidden">
-        <label for="responseOptions">Select one of the options:</label><br>
+        <label for="responseOptions">Vyberte jednu z možností:</label><br>
         <select id="responseOptions">
 
         </select>
     </div>
     <div id="checkboxContainer" class="hidden">
-        <label>Choose your response:</label><br>
+        <label>Vyberte svoju odpoveď:</label><br>
     </div>
 </div>
-
-<div id="batchContainer">
-    <div id="batchInfo"></div>
-</div>
-
-<button id="submitButton">Submit Response</button>
+<div id="messageContainer"></div>
+<button id="submitButton">Potvrdiť hlasovanie</button>
+<button id="redirectButton">Spať na úvodnú stranu</button>
 
 <script>
     const code = '<?php echo $code; ?>';
@@ -67,9 +66,8 @@ echo "The code is: " . htmlspecialchars($code);
                 const question = response.data;
                 console.log(response.data);
                 const questionTextDiv = document.getElementById('questionText');
-                questionTextDiv.textContent = `Question Text: ${question.text}`;
-                const questionIdDiv = document.getElementById('questionId');
-                questionIdDiv.textContent = `Question ID: ${question.id}`;
+                questionTextDiv.textContent = `Otázka: ${question.text}`;
+
                 questionId = question.id;
                 wordmap = question.is_wordmap;
 
@@ -102,9 +100,6 @@ echo "The code is: " . htmlspecialchars($code);
                     const batches = response.data;
                     if (batches.length > 0) {
                         const lastBatch = batches[batches.length - 1];
-                        console.log('Last Batch:', lastBatch);
-                        const batchInfoDiv = document.getElementById('batchInfo');
-                        batchInfoDiv.textContent = `Batch Name: ${lastBatch.name}, Batch ID: ${lastBatch.id}`;
                         batchId = lastBatch.id;
                         fetchResponses(lastBatch.id, questionType, questionMA);
                     } else {
@@ -177,7 +172,7 @@ echo "The code is: " . htmlspecialchars($code);
 
         if (responseText) {
             if (!batchId) {
-                alert('No batch selected.');
+                displayMessage('No batch selected.', true);
                 return;
             }
 
@@ -193,10 +188,11 @@ echo "The code is: " . htmlspecialchars($code);
                     increaseVoteCount(response.data.id);
                     document.getElementById('responseText').value = '';
                     window.location.href = `results.html?batchId=${batchId}&wordmap=${wordmap}`;
+
                 })
                 .catch(error => {
                     console.error('Error:', error.message);
-                    alert('Failed to submit response.');
+                    displayMessage('Nepodarilo sa zahlasovať.', true);
                 });
 
             return;
@@ -218,7 +214,7 @@ echo "The code is: " . htmlspecialchars($code);
 
 
         if (selectedOptionIds.length === 0) {
-            alert('Please select a response.');
+            displayMessage('Prosím vyberte možnosť', true);
             return;
         }
 
@@ -238,7 +234,7 @@ echo "The code is: " . htmlspecialchars($code);
                 })
                 .catch(error => {
                     console.error('Error:', error.message);
-                    alert('Failed to vote response.');
+                    displayMessage('Nepodarilo sa zahlasovať.', true);
                 });
         });
     });
@@ -258,10 +254,23 @@ echo "The code is: " . htmlspecialchars($code);
             })
             .catch(error => {
                 console.error('Error:', error.message);
-                alert('Failed to vote response.');
+                displayMessage('Nepodarilo sa zahlasovať.', true);
             });
     }
 
+    document.getElementById('redirectButton').addEventListener('click', function() {
+        window.location.href = 'index.html';
+    });
+
+    function displayMessage(message, isError) {
+        const messageContainer = document.getElementById('messageContainer');
+        messageContainer.textContent = message;
+        if (isError) {
+            messageContainer.style.color = 'red';
+        } else {
+            messageContainer.style.color = 'green';
+        }
+    }
 
 </script>
 

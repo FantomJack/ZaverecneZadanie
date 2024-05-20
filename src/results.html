@@ -4,16 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <title>Results Page</title>
+    <script src="scripts/cookieHandler.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@1.*/css/pico.min.css">
+    <title>Výsledky hlasovania</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             margin: 0;
-            background-color: #f4f4f4;
             flex-direction: column;
         }
         h1 {
@@ -24,8 +24,8 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            border: 1px solid #ccc;
-            background-color: #fff;
+            text-align: center;
+            /* background-color: #fff; */
             padding: 20px;
         }
         #batchId {
@@ -41,15 +41,12 @@
             width: 80%;
             max-height: 200px;
             overflow-y: auto;
-            border: 1px solid #ccc;
-            background-color: #f9f9f9;
             padding: 10px;
         }
         #wordCloud {
             width: 80%;
             height: 400px;
-            border: 1px solid #ccc;
-            background-color: #fff;
+            /*  background-color: #fff;*/
             overflow: hidden;
             position: relative;
         }
@@ -75,14 +72,14 @@
     </style>
 </head>
 <body>
-<h1>Results</h1>
-
+<h1>Výsledky hlasovania</h1>
+<p>Úspešne ste zahlasovali, toto sú momentálne výsledky hlasovania za danú otázku:</p>
+<a href="index.html" class="returnButton">Vrátiť sa späť</a>
 <div id="resultsContainer">
-    <div id="batchId"></div>
-    <div id="wordmap"></div>
+
     <ul id="answersList"></ul>
     <div id="wordCloud"></div>
-    <a href="index.html" class="returnButton">Vratit sa spat</a>
+
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.24.0/axios.min.js"></script>
@@ -92,12 +89,6 @@
 
     const batchId = urlParams.get('batchId');
     const wordmap = urlParams.get('wordmap');
-
-    const batchIdDiv = document.getElementById('batchId');
-    const wordmapDiv = document.getElementById('wordmap');
-
-    batchIdDiv.textContent = `Batch ID: ${batchId}`;
-    wordmapDiv.textContent = `Wordmap: ${wordmap}`;
 
     axios.get(`https://node31.webte.fei.stuba.sk/zaverecnezadanie/src/BE/api/responses.php?batch_id=${batchId}`)
         .then(response => {
@@ -120,7 +111,7 @@
 
         responses.forEach(response => {
             const listItem = document.createElement('li');
-            listItem.textContent = response.answer.replace(/"/g, '');
+            listItem.textContent = response.answer.replace(/"/g, '') + ": počet hlasov - " + response.votes;
             answersList.appendChild(listItem);
         });
     }
