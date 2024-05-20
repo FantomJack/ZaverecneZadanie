@@ -1,0 +1,5 @@
+.docker/
+docker-compose.yaml
+src/BE/.config.php
+src/.config.js
+poziadavky.txt

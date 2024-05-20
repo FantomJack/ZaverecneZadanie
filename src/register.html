@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Login page</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@1.*/css/pico.min.css">
+    <script src="scripts/auth.js"></script>
+</head>
+<body>
+<!--<header>-->
+<hgroup>
+    <h1 style="font-size: 2em">Register</h1>
+</hgroup>
+<!--</header>-->
+<main>
+
+    <form id="registerForm">
+
+<!--        <label for="firstname">-->
+<!--            Meno:-->
+<!--            <input type="text" name="firstname" value="" id="firstname" placeholder="napr. Jonatan" required>-->
+<!--        </label>-->
+
+<!--        <label for="lastname">-->
+<!--            Priezvisko:-->
+<!--            <input type="text" name="lastname" value="" id="lastname" placeholder="napr. Petrzlen" required>-->
+<!--        </label>-->
+
+        <label for="email">
+            E-mail:
+            <input type="email" name="email" value="" id="email" placeholder="napr. jpetrzlen@example.com" required>
+        </label>
+
+        <label for="login">
+            Login:
+            <input type="text" name="login" minlength="6" maxlength="32"  value="" id="login" placeholder="napr. jperasin" required">
+        </label>
+
+        <label for="password">
+            Heslo:
+            <input type="password" name="password" value="" id="password" required>
+        </label>
+
+        <button type="submit">Vytvorit konto</button>
+
+        <p style="color: #dc3545" id="errmsg"></p>
+
+<!--        <p>Teraz sa mozte prihlasit: <a href="login.php" role="button">Login</a></p> -->
+
+    </form>
+    <p>Mate vytvorene konto? <a href="login.html">Prihlaste sa tu.</a></p>
+    <script src=".config.js"></script>
+<script>
+    document.getElementById("registerForm").addEventListener("submit", function(event){
+        event.preventDefault();
+
+        let log = document.getElementById("login").value;
+        let email = document.getElementById("email").value;
+        let pass = document.getElementById("password").value;
+        auth_register(url, api, log, email, pass, document.getElementById("errmsg"))
+    });
+</script>
+</main>
+</body>
+</html>

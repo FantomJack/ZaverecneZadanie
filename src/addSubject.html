@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src=".config.js"></script>
+    <script src="scripts/auth.js"></script>
+    <script src="scripts/cookieHandler.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.3.4/axios.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@1.*/css/pico.min.css">
+    <style>
+        body{
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+        .box {
+            margin: auto; /* Adjust margin as needed */
+            height:500px;
+            width:80%;
+            max-width: 1000px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="questionFormFrame" class="box container" title="Embedded Website">
+    <form id="subjectForm">
+
+        <label for="subjectName">
+            Názov predmetu:
+            <input type="text" name="subjectName" value="" id="subjectName" required maxlength="99">
+        </label>
+        <label for="subjectCode">
+            Kód predmetu:
+            <input type="text" name="subjectCode" value="" id="subjectCode" required maxlength="9">
+        </label>
+
+        <p id="errMsg" style="display: none"> </p>
+        <button type="submit">Pridať predmet</button>
+        <p><a href="addQuestion.html"> Späť na vytváranie hlasovania </a></p>
+    </form>
+
+</div>
+
+<script src="scripts/auth.js"></script>
+<script>
+
+    const loggedin = getCookie('loggedin');
+    if (loggedin == true){
+        console.log("Prihlaseny")
+    }
+    else{
+        window.location.href = 'index.html'
+    }
+
+    document.getElementById("subjectForm").addEventListener("submit", async function(event){
+        event.preventDefault();
+        let message = document.getElementById("errMsg")
+        let name = document.getElementById("subjectName").value;
+        let code = document.getElementById("subjectCode").value;
+        if (await (nameAlreadyUsed(name))){
+            message.innerHTML = 'Predmet s týmto menom už v databáze existuje'
+            message.style.display = 'block'
+            message.style.color = 'red'
+        } else if (await (codeAlreadyUsed(code))) {
+            message.innerHTML = 'Predmet s týmto kódom už v databáze existuje'
+            message.style.display = 'block'
+            message.style.color = 'red'
+        } else {
+            axios.post('https://node57.webte.fei.stuba.sk:739/BE/api/subjects.php', {
+                name: name,
+                code: code
+            }, {headers: {'Content-Type': 'multipart/form-data'}})
+                .then(function (response) {
+                    console.log(response);
+                })
+                .catch(function (error) {
+                    console.log(error);
+                });
+            message.innerHTML = 'Predmet úspešne pridaný'
+            message.style.display = 'block'
+            message.style.color = 'green'
+        }
+    });
+
+
+    async function nameAlreadyUsed(name){
+        let responseCode
+        let response = axios.get('https://node57.webte.fei.stuba.sk:739/BE/api/subjects.php?name=' + name)
+        await response.then(function (response) {
+             responseCode = response.status
+        })
+        return responseCode === 200;
+    }
+    async function codeAlreadyUsed(code){
+        let responseCode
+        let response = axios.get('https://node57.webte.fei.stuba.sk:739/BE/api/subjects.php?code=' + code)
+        await response.then(function (response) {
+            responseCode = response.status
+        })
+        return responseCode === 200;
+    }
+
+    document.getElementById("subjectForm").addEventListener("input", function(event){
+        let message = document.getElementById("errMsg")
+        message.innerHTML = ''
+        message.style.display = 'hidden'
+    });
+
+</script>
+</body>
+</html>
