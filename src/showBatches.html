@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Hlasovania</title>
+    <script src=".config.js"></script>
+    <script src="scripts/auth.js"></script>
+    <script src="scripts/cookieHandler.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+            crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@1.*/css/pico.min.css">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        button{
+            max-width: 20%;
+        }
+
+    </style>
+</head>
+<body>
+<h2>Hlasovania pre zvolenú otázku</h2>
+<button id="redirectButton">Spať na úvodnú stranu</button>
+
+<div id="batchesContainer"></div>
+
+<script>
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const loggedin = getCookie('loggedin');
+        if (!loggedin) {
+            window.location.href = 'index.html';
+        }
+
+        const userId = getCookie('id');
+        const questionId = getQuestionIdFromUrl();
+
+        if (userId) {
+            checkQuestionOwnership(userId, questionId);
+        } else {
+            console.error('User ID not found in cookies.');
+            redirectToIndex();
+        }
+    });
+
+    function getQuestionIdFromUrl() {
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        return urlParams.get('question_id');
+    }
+
+    async function checkQuestionOwnership(userId, questionId) {
+        const url = `https://node31.webte.fei.stuba.sk/zaverecnezadanie/src/BE/api/questions.php?id=${questionId}`;
+        try {
+            const response = await axios.get(url);
+            const question = response.data;
+
+            if (question.owner_id !== userId) {
+                console.error('Unauthorized access to question.');
+                redirectToIndex();
+            } else {
+                console.log('Question belongs to the user. Proceed with displaying batches.');
+                fetchBatches(questionId);
+            }
+        } catch (error) {
+            console.error(`Error fetching question with ID ${questionId}:`, error);
+            redirectToIndex();
+        }
+    }
+
+    function redirectToIndex() {
+        window.location.href = 'index.html';
+    }
+
+    async function fetchBatches(questionId) {
+        const url = `https://node31.webte.fei.stuba.sk/zaverecnezadanie/src/BE/api/batches.php?question_id=${questionId}`;
+        try {
+            const response = await axios.get(url);
+            const batches = response.data;
+            console.log(response.data);
+            displayBatches(batches);
+        } catch (error) {
+            console.error(`Error fetching batches for question ID ${questionId}:`, error);
+        }
+    }
+
+    async function fetchResponses(batchId) {
+        const url = `https://node31.webte.fei.stuba.sk/zaverecnezadanie/src/BE/api/responses.php?batch_id=${batchId}`;
+        try {
+            const response = await axios.get(url);
+            return response.data;
+        } catch (error) {
+            console.error(`Error fetching responses for batch ID ${batchId}:`, error);
+            return [];
+        }
+    }
+
+    async function displayBatches(batches) {
+        const batchesContainer = document.getElementById('batchesContainer');
+        batchesContainer.innerHTML = '';
+        if (batches.length === 0) {
+            batchesContainer.innerHTML = '<p>No batches found.</p>';
+            return;
+        }
+
+        for (const batch of batches) {
+            const header = document.createElement('h3');
+            header.innerHTML = `ID Hlasovania: ${batch.id}, Dátum uzatvorenia: ${batch.backup_date}`;
+            batchesContainer.appendChild(header);
+
+            const table = document.createElement('table');
+            const headerRow = table.insertRow();
+            const header1 = headerRow.insertCell();
+            header1.innerHTML = "<strong>Odpoveď</strong>";
+            const header2 = headerRow.insertCell();
+            header2.innerHTML = "<strong>Počet hlasov</strong>";
+            const header3 = headerRow.insertCell();
+            header3.innerHTML = "<strong>% Z celkového počtu hlasov</strong>";
+
+            const responses = await fetchResponses(batch.id);
+            console.log(responses);
+            if (responses.length > 0) {
+                const totalVotes = responses.reduce((acc, response) => acc + parseInt(response.votes), 0);
+
+                for (const response of responses) {
+                    const row = table.insertRow();
+                    const cell1 = row.insertCell();
+                    cell1.innerHTML = response.answer;
+                    const cell2 = row.insertCell();
+                    cell2.innerHTML = response.votes;
+                    const cell3 = row.insertCell();
+                    cell3.innerHTML = ((parseInt(response.votes) / totalVotes) * 100).toFixed(2);
+                }
+
+                const totalRow = table.insertRow();
+                const totalCell1 = totalRow.insertCell();
+                totalCell1.colSpan = 2;
+                totalCell1.innerHTML = "<strong>Celkový počet hlasov</strong>";
+                const totalCell2 = totalRow.insertCell();
+                totalCell2.innerHTML = `<strong>${totalVotes}</strong>`;
+            } else {
+                const row = table.insertRow();
+                const cell = row.insertCell();
+                cell.colSpan = 3;
+                cell.innerHTML = `<strong>Žiadne odpovede pre tento batch.</strong>`;
+            }
+
+            batchesContainer.appendChild(table);
+        }
+    }
+
+    document.getElementById('redirectButton').addEventListener('click', function() {
+        window.location.href = 'index.html';
+    });
+
+</script>
+</body>
+</html>
