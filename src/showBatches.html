@@ -78,7 +78,7 @@
     }
 
     async function checkQuestionOwnership(userId, questionId) {
-        const url = `https://node31.webte.fei.stuba.sk/zaverecnezadanie/src/BE/api/questions.php?id=${questionId}`;
+        const url = `https://node57.webte.fei.stuba.sk:739/BE/api/questions.php?id=${questionId}`;
         try {
             const response = await axios.get(url);
             const question = response.data;
@@ -101,7 +101,7 @@
     }
 
     async function fetchBatches(questionId) {
-        const url = `https://node31.webte.fei.stuba.sk/zaverecnezadanie/src/BE/api/batches.php?question_id=${questionId}`;
+        const url = `https://node57.webte.fei.stuba.sk:739/BE/api/batches.php?question_id=${questionId}`;
         try {
             const response = await axios.get(url);
             const batches = response.data;
@@ -113,7 +113,7 @@
     }
 
     async function fetchResponses(batchId) {
-        const url = `https://node31.webte.fei.stuba.sk/zaverecnezadanie/src/BE/api/responses.php?batch_id=${batchId}`;
+        const url = `https://node57.webte.fei.stuba.sk:739/BE/api/responses.php?batch_id=${batchId}`;
         try {
             const response = await axios.get(url);
             return response.data;

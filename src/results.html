@@ -90,7 +90,7 @@
     const batchId = urlParams.get('batchId');
     const wordmap = urlParams.get('wordmap');
 
-    axios.get(`https://node31.webte.fei.stuba.sk/zaverecnezadanie/src/BE/api/responses.php?batch_id=${batchId}`)
+    axios.get(`https://node57.webte.fei.stuba.sk:739/BE/api/responses.php?batch_id=${batchId}`)
         .then(response => {
             const responses = response.data;
             console.log('Responses:', responses);

@@ -55,7 +55,7 @@ $code = end($uri_parts);
 
 <script>
     const code = '<?php echo $code; ?>';
-    const questionApiUrl = 'https://node31.webte.fei.stuba.sk/zaverecnezadanie/src/BE/api/questions.php?qrcode=%22' + code + '%22';
+    const questionApiUrl = 'https://node57.webte.fei.stuba.sk:739/BE/api/questions.php?qrcode=%22' + code + '%22';
     let batchId = null;
     let questionId = null;
     let wordmap = null;
@@ -92,7 +92,7 @@ $code = end($uri_parts);
         });
 
     function fetchLastBatchInfo(questionId, questionType, questionMA) {
-        const batchApiUrl = 'https://node31.webte.fei.stuba.sk/zaverecnezadanie/src/BE/api/batches.php?question_id=' + questionId;
+        const batchApiUrl = 'https://node57.webte.fei.stuba.sk:739/BE/api/batches.php?question_id=' + questionId;
 
         axios.get(batchApiUrl)
             .then(response => {
@@ -115,7 +115,7 @@ $code = end($uri_parts);
     }
 
     function fetchResponses(batchId, questionType, questionMA) {
-        const responseApiUrl = 'https://node31.webte.fei.stuba.sk/zaverecnezadanie/src/BE/api/responses.php?batch_id=' + batchId;
+        const responseApiUrl = 'https://node57.webte.fei.stuba.sk:739/BE/api/responses.php?batch_id=' + batchId;
 
         axios.get(responseApiUrl)
             .then(response => {
@@ -178,7 +178,7 @@ $code = end($uri_parts);
 
             const postData = `batch_id=${encodeURIComponent(batchId)}&question_id=${encodeURIComponent(questionId)}&answer=${encodeURIComponent(responseText)}`;
 
-            axios.post('https://node31.webte.fei.stuba.sk/zaverecnezadanie/src/BE/api/responses.php', postData, {
+            axios.post('https://node57.webte.fei.stuba.sk:739/BE/api/responses.php', postData, {
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 }
@@ -219,7 +219,7 @@ $code = end($uri_parts);
         }
 
         selectedOptionIds.forEach(optionId => {
-            axios.put('https://node31.webte.fei.stuba.sk/zaverecnezadanie/src/BE/api/responses.php', {
+            axios.put('https://node57.webte.fei.stuba.sk:739/BE/api/responses.php', {
                 id: optionId,
                 action: 'vote'
             }, {
@@ -239,7 +239,7 @@ $code = end($uri_parts);
         });
     });
     function increaseVoteCount(responseId) {
-        axios.put('https://node31.webte.fei.stuba.sk/zaverecnezadanie/src/BE/api/responses.php', {
+        axios.put('https://node57.webte.fei.stuba.sk:739/BE/api/responses.php', {
             id: responseId,
             action: 'vote'
         }, {

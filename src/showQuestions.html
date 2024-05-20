@@ -120,7 +120,7 @@
     let subjectsMap = {};
 
     async function fetchQuestions(userId) {
-        const url = `https://node31.webte.fei.stuba.sk/zaverecnezadanie/src/BE/api/questions.php?owner_id=${userId}`;
+        const url = `https://node57.webte.fei.stuba.sk:739/BE/api/questions.php?owner_id=${userId}`;
         try {
             const response = await axios.get(url);
             allQuestions = response.data;
@@ -144,7 +144,7 @@
     }
 
     async function fetchSubjectById(subjectId) {
-        const url = `https://node31.webte.fei.stuba.sk/zaverecnezadanie/src/BE/api/subjects.php?id=${subjectId}`;
+        const url = `https://node57.webte.fei.stuba.sk:739/BE/api/subjects.php?id=${subjectId}`;
         try {
             const response = await axios.get(url);
             return response.data;
@@ -188,9 +188,23 @@
             const creationDate = document.createElement('p');
             creationDate.textContent = `Dátum vytvorenia: ${question.created_at}`;
 
+            const questionCode = document.createElement('p');
+            questionCode.textContent = `QR kód na otázku: ${question.code}`;
+
+            const questionTypeBlock = document.createElement('p');
+            let questionType = question.type
+            if (questionType === "CLOSED"){
+                questionTypeBlock.textContent = `Typ odpovedí: zatvorená`;
+            }else{
+                questionTypeBlock.textContent = `Typ odpovedí: otvorená`;
+            }
+
+
             questionContent.appendChild(questionTitle);
             questionContent.appendChild(questionSubject);
+            questionContent.appendChild(questionTypeBlock);
             questionContent.appendChild(creationDate);
+            questionContent.appendChild(questionCode);
 
             const buttonContainer = document.createElement('div');
             buttonContainer.className = 'button-container';
@@ -220,7 +234,7 @@
     }
 
     async function deleteQuestion(questionId) {
-        const url = 'https://node31.webte.fei.stuba.sk/zaverecnezadanie/src/BE/api/questions.php';
+        const url = 'https://node57.webte.fei.stuba.sk:739/BE/api/questions.php';
         try {
             const response = await axios.delete(url, {data: {id: questionId}});
             console.log('Question deleted');

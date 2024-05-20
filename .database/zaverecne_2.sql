@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hostiteľ: localhost:3306
--- Čas generovania: Po 13.Máj 2024, 20:49
+-- Čas generovania: Sun 19.Máj 2024, 10:23
 -- Verzia serveru: 8.0.36-0ubuntu0.22.04.1
 -- Verzia PHP: 8.3.3-1+ubuntu22.04.1+deb.sury.org+1
 
@@ -35,6 +35,7 @@ CREATE TABLE `questions` (
   `code` varchar(5) COLLATE utf8mb4_general_ci NOT NULL,
   `type` enum('OPEN','CLOSED') COLLATE utf8mb4_general_ci NOT NULL,
   `is_wordmap` enum('Y','N') COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'N',
+  `multiple_answers` enum('Y','N') COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'N',
   `is_active` enum('Y','N') COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'Y',
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `closed_at` datetime DEFAULT NULL
@@ -44,12 +45,9 @@ CREATE TABLE `questions` (
 -- Sťahujem dáta pre tabuľku `questions`
 --
 
-INSERT INTO `questions` (`id`, `owner_id`, `subject_id`, `text`, `code`, `type`, `is_wordmap`, `is_active`, `created_at`, `closed_at`) VALUES
-(2, NULL, NULL, 'dasdas', '4XIWp', 'OPEN', 'N', 'Y', '2024-05-08 21:40:15', NULL),
-(3, NULL, NULL, 'test', 'uqEnC', 'OPEN', 'N', 'Y', '2024-05-11 15:17:54', NULL),
-(6, NULL, NULL, 'testujem navratnost qrcodu', 'DySxu', 'CLOSED', 'N', 'Y', '2024-05-13 12:24:59', NULL),
-(7, NULL, NULL, 'testujem navratnost qrcodu', 'iQFnt', 'CLOSED', 'N', 'Y', '2024-05-13 12:30:53', NULL),
-(8, NULL, NULL, 'testujem navratnost qrcodu', 'Pj7sL', 'CLOSED', 'N', 'Y', '2024-05-13 12:33:33', NULL);
+INSERT INTO `questions` (`id`, `owner_id`, `subject_id`, `text`, `code`, `type`, `is_wordmap`, `multiple_answers`, `is_active`, `created_at`, `closed_at`) VALUES
+(9, NULL, NULL, 'testujem navratnost qrcodu', 'THm5F', 'CLOSED', 'N', 'N', 'N', '2024-05-15 16:07:05', NULL),
+(10, NULL, NULL, 'testujem navratnost qrcodu', 'er9DE', 'CLOSED', 'N', 'N', 'Y', '2024-05-15 16:09:42', NULL);
 
 -- --------------------------------------------------------
 
@@ -64,6 +62,15 @@ CREATE TABLE `responses` (
   `votes` int NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Sťahujem dáta pre tabuľku `responses`
+--
+
+INSERT INTO `responses` (`id`, `batch_id`, `answer`, `votes`) VALUES
+(15, 6, 'test', 0),
+(16, 6, 'tesdsa', 0),
+(17, 6, 'tesdsadsa', 0);
+
 -- --------------------------------------------------------
 
 --
@@ -77,6 +84,13 @@ CREATE TABLE `response_batches` (
   `backup_date` datetime DEFAULT NULL,
   `number` int DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Sťahujem dáta pre tabuľku `response_batches`
+--
+
+INSERT INTO `response_batches` (`id`, `question_id`, `name`, `backup_date`, `number`) VALUES
+(6, 10, 'New batch', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -117,7 +131,7 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`id`, `email`, `login`, `password`, `admin_priv`) VALUES
 (18, 'xkaras@stuba.sk', 'xkaras', '$argon2id$v=19$m=65536,t=4,p=1$dUNzTTRXWm4zZ0RPSUYuQQ$ct9X7pcXaNrBpHXACeytj+YgQ2RtiCnZL1DrJClkoR0', 'N'),
-(19, 'belanondrej@gmail.com', 'belano', '$argon2id$v=19$m=65536,t=4,p=1$bndCRDNmNXhuMktQRi5hbQ$ydKVyxBi+77CTPWnI9hbmwVL2at1CWyAuR1Fwik7y0I', 'N');
+(21, 'belanondrej@gmail.com', 'belano', '$argon2id$v=19$m=65536,t=4,p=1$RTIzVS5LS3NSVDBON3A2dQ$RpH98qPZClbgum7vSlCq7wQqTX3yohkxEafNpU4Y/MU', 'N');
 
 --
 -- Kľúče pre exportované tabuľky
@@ -168,19 +182,19 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT pre tabuľku `questions`
 --
 ALTER TABLE `questions`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT pre tabuľku `responses`
 --
 ALTER TABLE `responses`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- AUTO_INCREMENT pre tabuľku `response_batches`
 --
 ALTER TABLE `response_batches`
-  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT pre tabuľku `subjects`
@@ -192,7 +206,7 @@ ALTER TABLE `subjects`
 -- AUTO_INCREMENT pre tabuľku `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- Obmedzenie pre exportované tabuľky

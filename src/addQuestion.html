@@ -113,9 +113,9 @@
             </div>
         </div>
         <p id="errMsg" style="display: none"> </p>
-        <button type="submit" style="margin-top: 30px; margin-bottom: 50px">Vytvoriť hlasovanie</button>
+        <button type="submit" style="margin-top: 30px">Vytvoriť hlasovanie</button>
+        <button id="backButt" style="margin-top: 30px; margin-bottom: 50px; background-color: darkgray; border-color: darkgray">Späť do menu</button>
     </form>
-
 
 </div>
 
@@ -133,6 +133,10 @@
     document.addEventListener('DOMContentLoaded', function() {
         populateSubjects();
     });
+
+    document.getElementById("backButt").addEventListener("click", function () {
+        window.location.href = 'index.html'
+    })
 
     function addAnswer() {
         const answersDiv = document.getElementById('answers');
@@ -240,7 +244,7 @@
         }, {headers: {'Content-Type': 'multipart/form-data'}})
             .then(function (response) {
                 console.log(response);
-                message.innerHTML = 'Predmet úspešne pridaný'
+                message.innerHTML = 'Otázka úspešne vytvorená'
                 message.style.display = 'block'
                 message.style.color = 'green'
                 if (type === 'CLOSED') {
@@ -257,20 +261,23 @@
 
     function sendAnswers(questionId) {
         console.log(questionId);
-        const answers = document.querySelectorAll('#answers input[type="text"]');
-        answers.forEach(async (answer, index) => {
-            await axios.post('https://node57.webte.fei.stuba.sk:739/BE/api/responses.php', {
-                question_id: questionId,
-                answer: answer.value,
-                // sort_order: index + 1 // You might want to control the order of the answers
-            }, {headers: {'Content-Type': 'multipart/form-data'}})
-                .then(response => {
-                    console.log('Answer added:', response.data);
-                })
-                .catch(error => {
-                    console.error('Error posting answer:', error);
-                });
-        });
+        const answersRaw = document.querySelectorAll('#answers input[type="text"]');
+        let answers = [];
+        answersRaw.forEach(answer => {
+            answers.push(answer.value)
+        })
+        console.log(answers);
+
+        axios.post('https://node57.webte.fei.stuba.sk:739/BE/api/responses.php', {
+            question_id: questionId,
+            answer: answers,
+        }, {headers: {'Content-Type': 'multipart/form-data'}})
+            .then(response => {
+                console.log('Answer added:', response.data);
+            })
+            .catch(error => {
+                console.error('Error posting answer:', error);
+            });
     }
 
     document.getElementById("questionForm").addEventListener("input", function(event){

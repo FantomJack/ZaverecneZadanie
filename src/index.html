@@ -43,6 +43,8 @@
             <button id="codeSubmit">Prejsť na otázku</button>
             <button id="createQuestion">Vytvor nové hlasovanie</button>
             <button id="showQuestions">Zobraziť moje otázky</button>
+            <button id="logoutButt"> Odhlásiť sa</button>
+
         </div>
     </div>
     <div id="loginFormFrame" class="box container" title="Embedded Website">
@@ -72,10 +74,16 @@
     const loggedin = getCookie('loggedin');
     if (loggedin == true){
         $("#loginFormFrame").css("display", "none");
+        $("#logoutButt").css("display", "block");
+        $("#showQuestions").css("display", "block");
+        $("#createQuestion").css("display", "block");
         console.log("Prihlaseny")
     }
     else{
         $("#loginFormFrame").css("display", "flex");
+        $("#logoutButt").css("display", "none");
+        $("#showQuestions").css("display", "none");
+        $("#createQuestion").css("display", "none");
         console.log("Neprihlaseny")
     }
 
@@ -111,12 +119,16 @@
         window.location.href = 'addQuestion.html'
     })
 
+    document.getElementById("logoutButt").addEventListener("click", function () {
+        window.location.href = 'logout.html'
+    })
+
     document.getElementById("showQuestions").addEventListener("click", function () {
         window.location.href = 'showQuestions.html'
     })
 
     function correctCode(code) {
-        return axios.get('https://node31.webte.fei.stuba.sk/zaverecnezadanie/src/BE/api/questions.php?qrcode=%22' + code + '%22')
+        return axios.get('https://node57.webte.fei.stuba.sk:739/BE/api/questions.php?qrcode=%22' + code + '%22')
             .then(response => {
                 if (response.status === 200) {
                     console.log(response.data);
